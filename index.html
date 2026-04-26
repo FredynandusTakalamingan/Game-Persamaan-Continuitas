@@ -7,16 +7,26 @@
   <style>
     :root { --primary: #47b5ff; --dark: #06283d; --accent: #00ffab; --danger: #ff6b6b; }
     
+    /* Mencegah seleksi teks di seluruh aplikasi agar tidak muncul copy-paste */
+    * {
+      -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none;   /* Safari */
+      -khtml-user-select: none;    /* Konqueror HTML */
+      -moz-user-select: none;      /* Old versions of Firefox */
+      -ms-user-select: none;       /* Internet Explorer/Edge */
+      user-select: none;           /* Non-prefixed version */
+    }
+
     body { 
       margin: 0; background: #000; color: white; 
       font-family: 'Courier New', monospace; 
-      overflow: hidden; touch-action: none; 
+      overflow: hidden; 
+      touch-action: none; /* Mematikan zoom dan scroll default browser */
       display: flex; flex-direction: column; 
       align-items: center; justify-content: center; 
       height: 100vh; width: 100vw;
     }
 
-    /* Header UI: Responsive Layout */
     #header-ui { 
       display: flex; justify-content: space-between; 
       width: 95%; max-width: 700px; padding: 10px; 
@@ -26,48 +36,43 @@
     }
     .stat-val { color: var(--accent); font-weight: bold; }
 
-    /* Canvas Scaling */
     #canvas-container {
-      position: relative;
-      width: 100%;
-      max-width: 600px; /* GRID_W * TILE_SIZE */
-      aspect-ratio: 15 / 10;
-      display: flex;
-      justify-content: center;
+      position: relative; width: 100%; max-width: 600px; 
+      aspect-ratio: 15 / 10; display: flex; justify-content: center;
     }
-    canvas { 
-      background: #111; border: 3px solid #333; 
-      width: 100%; height: 100%; display: block; 
-    }
+    canvas { background: #111; border: 3px solid #333; width: 100%; height: 100%; display: block; }
 
     #footer-credit { margin-top: 5px; font-size: 0.6rem; color: #555; letter-spacing: 2px; }
 
-    /* Controls: D-PAD optimized for Mobile */
-    .controls { 
-      width: 100%; display: flex; justify-content: center; 
-      padding: 15px 0; pointer-events: none; 
-    }
-    .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; pointer-events: all; }
+    /* Controls */
+    .controls { width: 100%; display: flex; justify-content: center; padding: 15px 0; }
+    .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; }
+    
     .btn-dir { 
       width: 60px; height: 60px; background: rgba(71, 181, 255, 0.2); 
       border: 2px solid var(--primary); color: white; 
       display: flex; align-items: center; justify-content: center; 
-      border-radius: 50%; font-size: 1.5rem; user-select: none;
-      -webkit-tap-highlight-color: transparent;
+      border-radius: 50%; font-size: 1.5rem;
+      cursor: pointer;
+      /* Memastikan tidak ada highlight biru saat ditekan di mobile */
+      -webkit-tap-highlight-color: transparent; 
     }
     .btn-dir:active { background: var(--primary); transform: scale(0.9); }
 
-    /* Quiz Modal */
+    /* Modal & Screens */
     #quiz-overlay { 
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
       background: var(--dark); padding: 20px; border: 3px solid var(--primary); 
-      width: 90%; max-width: 400px; display: none; z-index: 100; 
-      border-radius: 15px; text-align: center; box-shadow: 0 0 30px #000;
+      width: 90%; max-width: 400px; display: none; z-index: 100; border-radius: 15px; 
+      text-align: center; box-shadow: 0 0 30px #000;
     }
+    /* Di dalam modal, kita izinkan teks dibaca tapi tetap tidak bisa di-copy */
+    #quiz-overlay p, #quiz-overlay h3 { user-select: none; }
+
     .btn-opt { 
       width: 100%; padding: 12px; margin: 8px 0; 
       background: transparent; border: 1px solid var(--primary); 
-      color: white; cursor: pointer; font-family: inherit; font-size: 1rem;
+      color: white; font-family: inherit; font-size: 1rem;
     }
 
     #start-screen { 
@@ -75,18 +80,9 @@
       display: flex; flex-direction: column; align-items: center; 
       justify-content: center; z-index: 1000; text-align: center; padding: 20px; 
     }
-
-    /* Landscape Mode Optimizations */
-    @media (orientation: landscape) and (max-height: 500px) {
-      #header-ui { position: fixed; top: 5px; width: 40%; left: 5px; flex-direction: column; gap: 5px; }
-      .controls { position: fixed; bottom: 10px; right: 20px; width: auto; }
-      #canvas-container { height: 85vh; width: auto; margin-left: 100px; }
-    }
   </style>
 </head>
-<body>
-
-  <div id="start-screen">
+<body oncontextmenu="return false;"> <div id="start-screen">
     <h1 style="color: var(--accent);">TANK PHYSICS</h1>
     <p style="max-width: 350px; color: #ccc; font-size: 0.8rem;">
         <b>Konsep: Persamaan Kontinuitas</b><br>
@@ -113,11 +109,11 @@
   <div class="controls">
     <div class="d-pad">
       <div></div>
-      <div class="btn-dir" ontouchstart="handleInput('w', true)" ontouchend="handleInput('w', false)">▲</div>
+      <div class="btn-dir" ontouchstart="handleInput('w', true); return false;" ontouchend="handleInput('w', false); return false;">▲</div>
       <div></div>
-      <div class="btn-dir" ontouchstart="handleInput('a', true)" ontouchend="handleInput('a', false)">◀</div>
-      <div class="btn-dir" ontouchstart="handleInput('s', true)" ontouchend="handleInput('s', false)">▼</div>
-      <div class="btn-dir" ontouchstart="handleInput('d', true)" ontouchend="handleInput('d', false)">▶</div>
+      <div class="btn-dir" ontouchstart="handleInput('a', true); return false;" ontouchend="handleInput('a', false); return false;">◀</div>
+      <div class="btn-dir" ontouchstart="handleInput('s', true); return false;" ontouchend="handleInput('s', false); return false;">▼</div>
+      <div class="btn-dir" ontouchstart="handleInput('d', true); return false;" ontouchend="handleInput('d', false); return false;">▶</div>
     </div>
   </div>
 
@@ -129,13 +125,19 @@
   </div>
 
   <script>
+    // Mematikan shortcut copy (Ctrl+C) dan lainnya di keyboard
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 's')) {
+        e.preventDefault();
+      }
+    });
+
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const TILE_SIZE = 40;
     const GRID_W = 15;
     const GRID_H = 10;
     
-    // Internal resolution stays constant
     canvas.width = TILE_SIZE * GRID_W;
     canvas.height = TILE_SIZE * GRID_H;
 
@@ -166,23 +168,9 @@
     let currentLevel = 0; let score = 0; let lives = 3;
     let isQuizActive = false; let keys = {};
 
-    const keyMap = {
-        'arrowup': 'w', 'arrowdown': 's', 'arrowleft': 'a', 'arrowright': 'd',
-        'w': 'w', 's': 's', 'a': 'a', 'd': 'd'
-    };
-
-    window.addEventListener('keydown', e => { 
-        const key = e.key.toLowerCase();
-        if(keyMap[key]) keys[keyMap[key]] = true;
-    });
-    window.addEventListener('keyup', e => {
-        const key = e.key.toLowerCase();
-        if(keyMap[key]) keys[keyMap[key]] = false;
-    });
-
     function handleInput(key, state) { 
         keys[key] = state; 
-        if(state) sfx(200, 'sine', 0.05, 0.02); // Haptic-like sound
+        if(state) sfx(200, 'sine', 0.05, 0.02);
     }
 
     const levels = [
@@ -203,7 +191,7 @@
     function triggerQuiz() {
       if(isQuizActive) return;
       isQuizActive = true;
-      keys = {}; // Stop movement
+      keys = {}; 
       sfx(600, 'square', 0.2);
       const data = levels[currentLevel];
       document.getElementById('quiz-overlay').style.display = 'block';
@@ -298,12 +286,9 @@
 
     function startGame() { 
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        
-        // Request fullscreen for better mobile experience
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(() => {});
         }
-
         document.getElementById('start-screen').style.display = 'none'; 
         gameLoop(); 
     }
