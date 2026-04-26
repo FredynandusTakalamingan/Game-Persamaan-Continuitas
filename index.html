@@ -3,44 +3,96 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Tank Physics: Lorong Air</title>
+  <title>Tank Physics: Lorong Air - Fredy T.</title>
   <style>
     :root { --primary: #47b5ff; --dark: #06283d; --accent: #00ffab; --danger: #ff6b6b; }
-    body { margin: 0; background: #000; color: white; font-family: 'Courier New', monospace; overflow: hidden; touch-action: none; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
     
-    /* Header UI: Level di Kiri, Life/Score di Kanan */
-    #header-ui { display: flex; justify-content: space-between; width: 95%; max-width: 600px; padding: 15px; background: rgba(6, 40, 61, 0.9); border: 2px solid var(--primary); border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
-    .side-left { font-weight: bold; }
-    .side-right { text-align: right; font-weight: bold; }
-    .stat-val { color: var(--accent); }
+    body { 
+      margin: 0; background: #000; color: white; 
+      font-family: 'Courier New', monospace; 
+      overflow: hidden; touch-action: none; 
+      display: flex; flex-direction: column; 
+      align-items: center; justify-content: center; 
+      height: 100vh; width: 100vw;
+    }
 
-    canvas { background: #111; border: 4px solid #333; display: block; }
+    /* Header UI: Responsive Layout */
+    #header-ui { 
+      display: flex; justify-content: space-between; 
+      width: 95%; max-width: 700px; padding: 10px; 
+      background: rgba(6, 40, 61, 0.9); border: 2px solid var(--primary); 
+      border-radius: 10px; margin-bottom: 5px; box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+    .stat-val { color: var(--accent); font-weight: bold; }
 
-    #footer-credit { margin-top: 10px; font-size: 0.7rem; color: #555; letter-spacing: 2px; text-transform: uppercase; }
+    /* Canvas Scaling */
+    #canvas-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px; /* GRID_W * TILE_SIZE */
+      aspect-ratio: 15 / 10;
+      display: flex;
+      justify-content: center;
+    }
+    canvas { 
+      background: #111; border: 3px solid #333; 
+      width: 100%; height: 100%; display: block; 
+    }
 
-    /* D-PAD untuk Mobile */
-    .controls { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: center; pointer-events: none; }
-    .d-pad { display: grid; grid-template-columns: repeat(3, 55px); gap: 8px; pointer-events: all; }
-    .btn-dir { width: 55px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid var(--primary); color: white; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; user-select: none; }
-    
+    #footer-credit { margin-top: 5px; font-size: 0.6rem; color: #555; letter-spacing: 2px; }
+
+    /* Controls: D-PAD optimized for Mobile */
+    .controls { 
+      width: 100%; display: flex; justify-content: center; 
+      padding: 15px 0; pointer-events: none; 
+    }
+    .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; pointer-events: all; }
+    .btn-dir { 
+      width: 60px; height: 60px; background: rgba(71, 181, 255, 0.2); 
+      border: 2px solid var(--primary); color: white; 
+      display: flex; align-items: center; justify-content: center; 
+      border-radius: 50%; font-size: 1.5rem; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-dir:active { background: var(--primary); transform: scale(0.9); }
+
     /* Quiz Modal */
-    #quiz-overlay { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--dark); padding: 20px; border: 3px solid var(--primary); width: 85%; max-width: 400px; display: none; z-index: 100; border-radius: 10px; text-align: center; }
-    .btn-opt { width: 100%; padding: 10px; margin: 5px 0; background: transparent; border: 1px solid var(--primary); color: white; cursor: pointer; font-family: inherit; }
-    .btn-opt:hover { background: var(--primary); color: #000; }
-    
-    #start-screen { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; padding: 20px; }
+    #quiz-overlay { 
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+      background: var(--dark); padding: 20px; border: 3px solid var(--primary); 
+      width: 90%; max-width: 400px; display: none; z-index: 100; 
+      border-radius: 15px; text-align: center; box-shadow: 0 0 30px #000;
+    }
+    .btn-opt { 
+      width: 100%; padding: 12px; margin: 8px 0; 
+      background: transparent; border: 1px solid var(--primary); 
+      color: white; cursor: pointer; font-family: inherit; font-size: 1rem;
+    }
+
+    #start-screen { 
+      position: fixed; inset: 0; background: #000; 
+      display: flex; flex-direction: column; align-items: center; 
+      justify-content: center; z-index: 1000; text-align: center; padding: 20px; 
+    }
+
+    /* Landscape Mode Optimizations */
+    @media (orientation: landscape) and (max-height: 500px) {
+      #header-ui { position: fixed; top: 5px; width: 40%; left: 5px; flex-direction: column; gap: 5px; }
+      .controls { position: fixed; bottom: 10px; right: 20px; width: auto; }
+      #canvas-container { height: 85vh; width: auto; margin-left: 100px; }
+    }
   </style>
 </head>
 <body>
 
   <div id="start-screen">
-    <h1 style="color: var(--accent);">TANK PHYSICS:<br>LORONG AIR</h1>
-    <p style="max-width: 350px; color: #ccc; font-size: 0.8rem; line-height: 1.4;">
-        <b>Penjelasan Konsep:</b><br>
-        Game ini menggunakan <b>Persamaan Kontinuitas</b>. Debit air ($Q$) selalu tetap. 
-        Jika luas jalan mengecil, kecepatan tank akan bertambah secara otomatis!
+    <h1 style="color: var(--accent);">TANK PHYSICS</h1>
+    <p style="max-width: 350px; color: #ccc; font-size: 0.8rem;">
+        <b>Konsep: Persamaan Kontinuitas</b><br>
+        Makin sempit lorong, makin cepat tank melaju!
     </p>
-    <button class="btn-opt" onclick="startGame()" style="width: 180px;">MULAI MISI</button>
+    <button class="btn-opt" onclick="startGame()">MULAI MISI</button>
     <div style="margin-top: 20px; font-size: 0.6rem; color: #444;">DESIGN BY FREDY TAKALAMINGAN</div>
   </div>
 
@@ -52,22 +104,28 @@
     </div>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
+  <div id="canvas-container">
+    <canvas id="gameCanvas"></canvas>
+  </div>
   
   <div id="footer-credit">DESIGN BY FREDY TAKALAMINGAN</div>
 
   <div class="controls">
     <div class="d-pad">
-      <div></div><div class="btn-dir" ontouchstart="handleInput('w', true)" ontouchend="handleInput('w', false)">▲</div><div></div>
-      <div class="btn-dir" ontouchstart="handleInput('a', true)" ontouchend="handleInput('a', false)">◀</div><div class="btn-dir" ontouchstart="handleInput('s', true)" ontouchend="handleInput('s', false)">▼</div><div class="btn-dir" ontouchstart="handleInput('d', true)" ontouchend="handleInput('d', false)">▶</div>
+      <div></div>
+      <div class="btn-dir" ontouchstart="handleInput('w', true)" ontouchend="handleInput('w', false)">▲</div>
+      <div></div>
+      <div class="btn-dir" ontouchstart="handleInput('a', true)" ontouchend="handleInput('a', false)">◀</div>
+      <div class="btn-dir" ontouchstart="handleInput('s', true)" ontouchend="handleInput('s', false)">▼</div>
+      <div class="btn-dir" ontouchstart="handleInput('d', true)" ontouchend="handleInput('d', false)">▶</div>
     </div>
   </div>
 
   <div id="quiz-overlay">
     <h3 id="q-lvl" style="color: var(--accent); margin:0 0 10px 0;"></h3>
-    <p id="q-text" style="font-size: 0.9rem;"></p>
+    <p id="q-text"></p>
     <div id="q-options"></div>
-    <p id="feedback" style="color: var(--danger); font-weight: bold; font-size: 0.8rem;"></p>
+    <p id="feedback" style="color: var(--danger); font-weight: bold;"></p>
   </div>
 
   <script>
@@ -76,11 +134,14 @@
     const TILE_SIZE = 40;
     const GRID_W = 15;
     const GRID_H = 10;
+    
+    // Internal resolution stays constant
     canvas.width = TILE_SIZE * GRID_W;
     canvas.height = TILE_SIZE * GRID_H;
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function sfx(f, t, d, v=0.1) {
+        if(audioCtx.state === 'suspended') return;
         const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
         o.type = t; o.frequency.value = f;
         g.gain.setValueAtTime(v, audioCtx.currentTime);
@@ -105,7 +166,6 @@
     let currentLevel = 0; let score = 0; let lives = 3;
     let isQuizActive = false; let keys = {};
 
-    // Mapping Keyboard Panah & WASD
     const keyMap = {
         'arrowup': 'w', 'arrowdown': 's', 'arrowleft': 'a', 'arrowright': 'd',
         'w': 'w', 's': 's', 'a': 'a', 'd': 'd'
@@ -120,19 +180,22 @@
         if(keyMap[key]) keys[keyMap[key]] = false;
     });
 
-    function handleInput(key, state) { keys[key] = state; }
+    function handleInput(key, state) { 
+        keys[key] = state; 
+        if(state) sfx(200, 'sine', 0.05, 0.02); // Haptic-like sound
+    }
 
     const levels = [
-        { q: "Debit air (Q) pada pipa yang menyempit adalah...", a: "Tetap", o: ["Tetap", "Berkurang", "Bertambah"], pos: {x:13, y:1} },
-        { q: "Rumus Persamaan Kontinuitas adalah...", a: "A1.v1 = A2.v2", o: ["A1.v1 = A2.v2", "P1 = P2", "F1 = F2"], pos: {x:1, y:8} },
-        { q: "Jika luas penampang pipa jadi 1/2 kali, kecepatan jadi...?", a: "2x Lipat", o: ["Tetap", "2x Lipat", "1/2 Lipat"], pos: {x:7, y:5} }
+        { q: "Apa yang terjadi pada kecepatan fluida jika luas penampang pipa mengecil?", a: "Bertambah", o: ["Tetap", "Berkurang", "Bertambah"], pos: {x:13, y:1} },
+        { q: "Persamaan Kontinuitas menyatakan bahwa debit (Q) adalah...", a: "Konstan", o: ["Konstan", "Berubah-ubah", "Nol"], pos: {x:1, y:8} },
+        { q: "Jika penampang pipa membesar, maka aliran air akan...", a: "Melambat", o: ["Melambat", "Makin Cepat", "Berhenti"], pos: {x:7, y:5} }
     ];
 
     let player = { x: TILE_SIZE, y: TILE_SIZE, dir: 'd' };
     let enemies = [{ x: 5*TILE_SIZE, y: 1*TILE_SIZE, dir: 's', speed: 1.5 }, { x: 13*TILE_SIZE, y: 8*TILE_SIZE, dir: 'w', speed: 1.5 }];
 
     function isColliding(x, y) {
-      const p = 8;
+      const p = 10;
       const pts = [{x:x+p, y:y+p}, {x:x+TILE_SIZE-p, y:y+p}, {x:x+p, y:y+TILE_SIZE-p}, {x:x+TILE_SIZE-p, y:y+TILE_SIZE-p}];
       return pts.some(pt => map[Math.floor(pt.y/TILE_SIZE)][Math.floor(pt.x/TILE_SIZE)] === 1);
     }
@@ -140,6 +203,7 @@
     function triggerQuiz() {
       if(isQuizActive) return;
       isQuizActive = true;
+      keys = {}; // Stop movement
       sfx(600, 'square', 0.2);
       const data = levels[currentLevel];
       document.getElementById('quiz-overlay').style.display = 'block';
@@ -176,10 +240,13 @@
     function update() {
       if(isQuizActive) return;
       let nx = player.x, ny = player.y;
-      if(keys['w']) { ny -= 2.5; player.dir = 'w'; }
-      if(keys['s']) { ny += 2.5; player.dir = 's'; }
-      if(keys['a']) { nx -= 2.5; player.dir = 'a'; }
-      if(keys['d']) { nx += 2.5; player.dir = 'd'; }
+      let speed = 2.5;
+
+      if(keys['w']) { ny -= speed; player.dir = 'w'; }
+      if(keys['s']) { ny += speed; player.dir = 's'; }
+      if(keys['a']) { nx -= speed; player.dir = 'a'; }
+      if(keys['d']) { nx += speed; player.dir = 'd'; }
+      
       if(!isColliding(nx, ny)) { player.x = nx; player.y = ny; }
 
       enemies.forEach(e => {
@@ -188,9 +255,12 @@
         if(e.dir === 'a') ex -= e.speed; if(e.dir === 'd') ex += e.speed;
         if(isColliding(ex, ey)) e.dir = ['w','s','a','d'][Math.floor(Math.random()*4)];
         else { e.x = ex; e.y = ey; }
+        
         if(Math.hypot(player.x - e.x, player.y - e.y) < 25) { 
-            lives--; sfx(100, 'sawtooth', 0.5); player.x = TILE_SIZE; player.y = TILE_SIZE; 
-            updateUI(); if(lives<=0) { alert("MELEDAK!"); location.reload(); }
+            lives--; sfx(100, 'sawtooth', 0.5); 
+            player.x = TILE_SIZE; player.y = TILE_SIZE; 
+            updateUI(); 
+            if(lives<=0) { alert("MELEDAK!"); location.reload(); }
         }
       });
 
@@ -213,8 +283,13 @@
       map.forEach((row, r) => row.forEach((cell, c) => {
         if(cell === 1) { ctx.fillStyle = '#333'; ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE); }
       }));
+      
       const g = levels[currentLevel].pos;
-      ctx.fillStyle = 'rgba(71, 181, 255, 0.4)'; ctx.beginPath(); ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 18 + Math.sin(Date.now()/150)*5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(71, 181, 255, 0.4)'; 
+      ctx.beginPath(); 
+      ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 15 + Math.sin(Date.now()/150)*5, 0, Math.PI*2); 
+      ctx.fill();
+      
       update();
       drawTank(player.x, player.y, player.dir, '#00ffab');
       enemies.forEach(e => drawTank(e.x, e.y, e.dir, '#ff6b6b'));
@@ -223,6 +298,12 @@
 
     function startGame() { 
         if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        // Request fullscreen for better mobile experience
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+
         document.getElementById('start-screen').style.display = 'none'; 
         gameLoop(); 
     }
