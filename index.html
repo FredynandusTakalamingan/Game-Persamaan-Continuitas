@@ -7,21 +7,20 @@
   <style>
     :root { --primary: #47b5ff; --dark: #06283d; --accent: #00ffab; --danger: #ff6b6b; }
     
-    /* Mencegah seleksi teks di seluruh aplikasi agar tidak muncul copy-paste */
     * {
-      -webkit-touch-callout: none; /* iOS Safari */
-      -webkit-user-select: none;   /* Safari */
-      -khtml-user-select: none;    /* Konqueror HTML */
-      -moz-user-select: none;      /* Old versions of Firefox */
-      -ms-user-select: none;       /* Internet Explorer/Edge */
-      user-select: none;           /* Non-prefixed version */
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
     }
 
     body { 
       margin: 0; background: #000; color: white; 
       font-family: 'Courier New', monospace; 
       overflow: hidden; 
-      touch-action: none; /* Mematikan zoom dan scroll default browser */
+      touch-action: none;
       display: flex; flex-direction: column; 
       align-items: center; justify-content: center; 
       height: 100vh; width: 100vw;
@@ -44,7 +43,6 @@
 
     #footer-credit { margin-top: 5px; font-size: 0.6rem; color: #555; letter-spacing: 2px; }
 
-    /* Controls */
     .controls { width: 100%; display: flex; justify-content: center; padding: 15px 0; }
     .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; }
     
@@ -54,19 +52,16 @@
       display: flex; align-items: center; justify-content: center; 
       border-radius: 50%; font-size: 1.5rem;
       cursor: pointer;
-      /* Memastikan tidak ada highlight biru saat ditekan di mobile */
       -webkit-tap-highlight-color: transparent; 
     }
     .btn-dir:active { background: var(--primary); transform: scale(0.9); }
 
-    /* Modal & Screens */
     #quiz-overlay { 
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
       background: var(--dark); padding: 20px; border: 3px solid var(--primary); 
       width: 90%; max-width: 400px; display: none; z-index: 100; border-radius: 15px; 
       text-align: center; box-shadow: 0 0 30px #000;
     }
-    /* Di dalam modal, kita izinkan teks dibaca tapi tetap tidak bisa di-copy */
     #quiz-overlay p, #quiz-overlay h3 { user-select: none; }
 
     .btn-opt { 
@@ -82,10 +77,12 @@
     }
   </style>
 </head>
-<body oncontextmenu="return false;"> <div id="start-screen">
+<body oncontextmenu="return false;"> 
+  <div id="start-screen">
     <h1 style="color: var(--accent);">TANK PHYSICS</h1>
     <p style="max-width: 350px; color: #ccc; font-size: 0.8rem;">
         <b>Konsep: Persamaan Kontinuitas</b><br>
+        Selesaikan 10 Level Tantangan!<br>
         Makin sempit lorong, makin cepat tank melaju!
     </p>
     <button class="btn-opt" onclick="startGame()">MULAI MISI</button>
@@ -119,13 +116,12 @@
 
   <div id="quiz-overlay">
     <h3 id="q-lvl" style="color: var(--accent); margin:0 0 10px 0;"></h3>
-    <p id="q-text"></p>
+    <p id="q-text" style="font-size: 0.9rem; line-height: 1.4;"></p>
     <div id="q-options"></div>
-    <p id="feedback" style="color: var(--danger); font-weight: bold;"></p>
+    <p id="feedback" style="color: var(--danger); font-weight: bold; margin-top: 10px;"></p>
   </div>
 
   <script>
-    // Mematikan shortcut copy (Ctrl+C) dan lainnya di keyboard
     window.addEventListener('keydown', function(e) {
       if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 's')) {
         e.preventDefault();
@@ -174,9 +170,16 @@
     }
 
     const levels = [
-        { q: "Apa yang terjadi pada kecepatan fluida jika luas penampang pipa mengecil?", a: "Bertambah", o: ["Tetap", "Berkurang", "Bertambah"], pos: {x:13, y:1} },
-        { q: "Persamaan Kontinuitas menyatakan bahwa debit (Q) adalah...", a: "Konstan", o: ["Konstan", "Berubah-ubah", "Nol"], pos: {x:1, y:8} },
-        { q: "Jika penampang pipa membesar, maka aliran air akan...", a: "Melambat", o: ["Melambat", "Makin Cepat", "Berhenti"], pos: {x:7, y:5} }
+        { q: "(LOTS) Air mengalir stabil di mana volume masuk sama dengan volume keluar tiap detik. Konsep ini disebut...", a: "Persamaan kontinuitas", o: ["Hukum Pascal", "Hukum Archimedes", "Persamaan kontinuitas", "Hukum Newton"], pos: {x:13, y:1} },
+        { q: "(LOTS) Luas penampang pipa 2 m² dan kecepatan aliran 3 m/s. Berapakah debit airnya?", a: "6 m³/s", o: ["5 m³/s", "6 m³/s", "1.5 m³/s", "0.6 m³/s"], pos: {x:1, y:8} },
+        { q: "(LOTS) Jika luas penampang pipa mengecil, maka kecepatan aliran air akan...", a: "Meningkat", o: ["Tetap", "Menurun", "Meningkat", "Nol"], pos: {x:7, y:5} },
+        { q: "(MOTS) Luas pipa 4 m² dan kecepatan 2 m/s. Jika pipa menyempit menjadi 2 m², kecepatan air menjadi...", a: "4 m/s", o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"], pos: {x:13, y:8} },
+        { q: "(MOTS) Petani mengamati air mengalir lebih cepat di saluran irigasi yang menyempit. Hal ini terjadi karena...", a: "Kecepatan meningkat karena luas mengecil", o: ["Tekanan meningkat drastis", "Debit bertambah", "Kecepatan meningkat karena luas mengecil", "Air menjadi lebih ringan"], pos: {x:1, y:1} },
+        { q: "(MOTS) Debit air dalam pipa adalah 12 m³/s. Jika luas penampang pipa 3 m², maka kecepatan air adalah...", a: "4 m/s", o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], pos: {x:7, y:3} },
+        { q: "(MOTS) Jika luas penampang pipa diperbesar 2 kali lipat sedangkan debit tetap, maka kecepatan air akan...", a: "Setengahnya", o: ["Tetap", "2 kali lipat", "Setengahnya", "4 kali lipat"], pos: {x:11, y:5} },
+        { q: "(HOTS) Bagian 1: luas 6 m², kecepatan 2 m/s. Bagian 2: luas 3 m². Berapakah kecepatan di bagian 2?", a: "4 m/s", o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], pos: {x:3, y:7} },
+        { q: "(HOTS) Pipa utama luas 4 m² kecepatan 3 m/s bercabang menjadi dua pipa kecil luas masing-masing 2 m². Total kecepatan gabungan dua pipa kecil adalah...", a: "6 m/s", o: ["3 m/s", "6 m/s", "12 m/s", "24 m/s"], pos: {x:11, y:1} },
+        { q: "(HOTS) 'Jika kecepatan air meningkat, maka debit pasti bertambah.' Pernyataan tersebut adalah...", a: "Salah, karena debit juga dipengaruhi luas penampang", o: ["Selalu benar", "Salah, karena debit juga dipengaruhi luas penampang", "Benar jika tekanan tinggi", "Tidak bisa ditentukan"], pos: {x:7, y:8} }
     ];
 
     let player = { x: TILE_SIZE, y: TILE_SIZE, dir: 'd' };
@@ -185,7 +188,11 @@
     function isColliding(x, y) {
       const p = 10;
       const pts = [{x:x+p, y:y+p}, {x:x+TILE_SIZE-p, y:y+p}, {x:x+p, y:y+TILE_SIZE-p}, {x:x+TILE_SIZE-p, y:y+TILE_SIZE-p}];
-      return pts.some(pt => map[Math.floor(pt.y/TILE_SIZE)][Math.floor(pt.x/TILE_SIZE)] === 1);
+      return pts.some(pt => {
+          const gx = Math.floor(pt.x/TILE_SIZE);
+          const gy = Math.floor(pt.y/TILE_SIZE);
+          return map[gy] && map[gy][gx] === 1;
+      });
     }
 
     function triggerQuiz() {
@@ -206,7 +213,7 @@
             if(opt === data.a) {
                 sfx(800, 'sine', 0.4); score += 100; currentLevel++;
                 isQuizActive = false; document.getElementById('quiz-overlay').style.display = 'none';
-                if(currentLevel >= levels.length) { alert("MISI BERHASIL!"); location.reload(); }
+                if(currentLevel >= levels.length) { alert("MISI BERHASIL! SEMUA LEVEL DISELESAIKAN!"); location.reload(); }
                 player.x = TILE_SIZE; player.y = TILE_SIZE; updateUI();
             } else {
                 lives--; sfx(150, 'sawtooth', 0.5, 0.2); updateUI();
@@ -290,6 +297,7 @@
             document.documentElement.requestFullscreen().catch(() => {});
         }
         document.getElementById('start-screen').style.display = 'none'; 
+        updateUI();
         gameLoop(); 
     }
   </script>
