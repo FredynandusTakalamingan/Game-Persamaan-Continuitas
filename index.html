@@ -7,7 +7,6 @@
   <style>
     :root { --primary: #47b5ff; --dark: #06283d; --accent: #00ffab; --danger: #ff6b6b; }
     
-    /* Proteksi Global Anti Seleksi Teks & Menu */
     * {
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -39,7 +38,6 @@
     }
     canvas { background: #111; border: 3px solid #333; width: 100%; height: 100%; display: block; }
 
-    /* Controls: D-PAD */
     .controls { width: 100%; display: flex; justify-content: center; padding: 10px 0; }
     .d-pad { display: grid; grid-template-columns: repeat(3, 55px); gap: 8px; }
     .btn-dir { 
@@ -50,7 +48,6 @@
     }
     .btn-dir:active { background: var(--primary); transform: scale(0.9); }
 
-    /* Quiz Modal: Dioptimalkan untuk Bacaan Panjang */
     #quiz-overlay { 
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
       background: var(--dark); padding: 15px; border: 3px solid var(--primary); 
@@ -84,9 +81,6 @@
   <div id="start-screen">
     <h1 style="color: var(--accent); margin:0;">TANK PHYSICS</h1>
     <h3 style="color: var(--primary); margin: 0 0 20px 0;">EDISI LORONG AIR</h3>
-    <p style="max-width: 300px; color: #ccc; font-size: 0.8rem; line-height: 1.5;">
-        Selesaikan 10 Level tantangan fisik. Gunakan prinsip <b>Persamaan Kontinuitas</b> untuk menjawab kuis dan mencapai garis finish!
-    </p>
     <button class="btn-opt" onclick="startGame()" style="text-align:center; width: 200px; background: var(--primary); color: #000; font-weight: bold;">MULAI MISI</button>
     <div class="footer-text">DESIGN BY FREDY TAKALAMINGAN</div>
   </div>
@@ -131,78 +125,19 @@
 
     let currentLevel = 0; let score = 0; let lives = 3;
     let isQuizActive = false; let keys = {};
+    let enemies = [];
 
     const levelsData = [
-      { 
-        b: "Di sebuah desa pegunungan, warga memanfaatkan mata air sebagai sumber air bersih. Air dialirkan melalui pipa sepanjang 500 meter menuju rumah-rumah penduduk. Setiap detik, air terus mengalir tanpa berhenti selama tidak ada kebocoran. Petugas desa menjelaskan bahwa jumlah air yang masuk ke pipa harus sama dengan jumlah air yang keluar.",
-        q: "Konsep fisika yang sesuai dengan kondisi tersebut adalah...",
-        o: ["Hukum Newton", "Persamaan kontinuitas", "Hukum Pascal", "Hukum Archimedes"],
-        a: "Persamaan kontinuitas",
-        pos: {x: 13, y: 1}
-      },
-      { 
-        b: "Di kota besar, air dari bendungan dialirkan melalui pipa utama berdiameter besar, kemudian dibagi ke pipa-pipa kecil menuju rumah warga. Meskipun ukuran pipa berbeda-beda, jumlah air yang mengalir setiap detik harus tetap agar distribusi tidak terganggu.",
-        q: "Besaran yang dijaga tetap dalam sistem tersebut adalah...",
-        o: ["Tekanan air", "Kecepatan air", "Debit air", "Energi air"],
-        a: "Debit air",
-        pos: {x: 1, y: 8}
-      },
-      { 
-        b: "Seorang siswa melakukan percobaan menggunakan pipa transparan yang memiliki dua bagian: satu lebar (4 cm²) dan satu sempit (2 cm²). Air dialirkan secara konstan. Siswa mengamati bahwa air bergerak lebih cepat di bagian yang sempit.",
-        q: "Mengapa kecepatan air meningkat di bagian sempit?",
-        o: ["Karena tekanan meningkat", "Karena debit tetap sehingga kecepatan harus meningkat", "Karena volume air berkurang", "Karena gaya gravitasi berubah"],
-        a: "Karena debit tetap sehingga kecepatan harus meningkat",
-        pos: {x: 7, y: 5}
-      },
-      { 
-        b: "Sebuah saluran irigasi memiliki luas penampang 2 m². Air mengalir dengan kecepatan rata-rata 3 m/s untuk mengairi sawah seluas 10 hektar.",
-        q: "Berapakah debit air yang mengalir pada saluran tersebut?",
-        o: ["5 m³/s", "6 m³/s", "7 m³/s", "8 m³/s"],
-        a: "6 m³/s",
-        pos: {x: 13, y: 8}
-      },
-      { 
-        b: "Air mengalir melalui pipa utama dengan luas 4 m² dan kecepatan 2 m/s. Pipa kemudian diperkecil menjadi 2 m² untuk meningkatkan aliran.",
-        q: "Berapakah kecepatan air pada pipa kecil?",
-        o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"],
-        a: "4 m/s",
-        pos: {x: 1, y: 1}
-      },
-      { 
-        b: "Sebuah bendungan mengalirkan air ke PLTA dengan debit 12 m³/s. Pada salah satu bagian saluran, luas penampangnya adalah 3 m².",
-        q: "Berapakah kecepatan air pada bagian tersebut?",
-        o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"],
-        a: "4 m/s",
-        pos: {x: 7, y: 1}
-      },
-      { 
-        b: "Dalam sistem pipa bawah tanah, terjadi penyumbatan sehingga luas penampang berkurang dari 6 m² menjadi 3 m². Debit air tetap tidak berubah.",
-        q: "Apa yang terjadi pada kecepatan air?",
-        o: ["Tetap", "Menjadi setengah", "Menjadi dua kali lipat", "Menjadi empat kali lipat"],
-        a: "Menjadi dua kali lipat",
-        pos: {x: 13, y: 5}
-      },
-      { 
-        b: "Saluran air memiliki debit 20 m³/s. Pada bagian awal luasnya 5 m². Ketika saluran menyempit menjadi 2 m², air tetap mengalir tanpa kehilangan volume.",
-        q: "Pernyataan yang paling tepat adalah...",
-        o: ["Kecepatan sama di kedua bagian", "Kecepatan lebih kecil di bagian sempit", "Kecepatan lebih besar di bagian sempit", "Debit berubah di bagian sempit"],
-        a: "Kecepatan lebih besar di bagian sempit",
-        pos: {x: 4, y: 4}
-      },
-      { 
-        b: "Seorang teknisi berpendapat memperbesar diameter pipa meningkatkan kecepatan. Namun insinyur menyatakan jika debit tetap, kecepatan akan menurun saat luas penampang bertambah.",
-        q: "Penilaian yang paling tepat adalah...",
-        o: ["Teknisi benar", "Insinyur benar", "Keduanya benar", "Keduanya salah"],
-        a: "Insinyur benar",
-        pos: {x: 10, y: 4}
-      },
-      { 
-        b: "Sebuah PLTA membutuhkan kecepatan 6 m/s untuk turbin optimal. Air tersedia memiliki debit 24 m³/s. Insinyur harus menentukan ukuran pipa yang tepat.",
-        q: "Berapakah luas penampang pipa yang harus digunakan?",
-        o: ["2 m²", "3 m²", "4 m²", "6 m²"],
-        a: "4 m²",
-        pos: {x: 7, y: 8}
-      }
+      { b: "Air mengalir melalui pipa desa tanpa kebocoran. Air masuk = air keluar.", q: "Konsep fisika ini adalah...", o: ["Newton", "Kontinuitas", "Pascal", "Archimedes"], a: "Kontinuitas", pos: {x: 13, y: 1}, e: [{x:5,y:3,dx:2,dy:0}, {x:10,y:5,dx:0,dy:2}] },
+      { b: "Pipa besar ke pipa kecil, jumlah air tiap detik tetap.", q: "Besaran yang tetap adalah...", o: ["Tekanan", "Kecepatan", "Debit", "Energi"], a: "Debit", pos: {x: 1, y: 8}, e: [{x:4,y:1,dx:0,dy:3}, {x:10,y:8,dx:-3,dy:0}] },
+      { b: "Air bergerak lebih cepat di pipa yang sempit.", q: "Mengapa demikian?", o: ["Tekanan naik", "Debit tetap", "Volume turun", "Gravitasi"], a: "Debit tetap", pos: {x: 7, y: 5}, e: [{x:2,y:5,dx:3,dy:0}, {x:12,y:5,dx:-3,dy:0}] },
+      { b: "Luas 2 m², kecepatan 3 m/s.", q: "Berapa debitnya?", o: ["5 m³/s", "6 m³/s", "7 m³/s", "8 m³/s"], a: "6 m³/s", pos: {x: 13, y: 8}, e: [{x:8,y:1,dx:0,dy:2}, {x:5,y:7,dx:3,dy:0}] },
+      { b: "Luas 4 m² ke 2 m². Kecepatan awal 2 m/s.", q: "Kecepatan di pipa kecil?", o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"], a: "4 m/s", pos: {x: 1, y: 1}, e: [{x:11,y:1,dx:0,dy:4}, {x:4,y:4,dx:3,dy:0}] },
+      { b: "Debit 12 m³/s, luas penampang 3 m².", q: "Berapa kecepatannya?", o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], a: "4 m/s", pos: {x: 7, y: 1}, e: [{x:1,y:5,dx:5,dy:0}, {x:13,y:5,dx:-5,dy:0}] },
+      { b: "Luas pipa berkurang dari 6 m² jadi 3 m².", q: "Kecepatan air menjadi...", o: ["Tetap", "Setengah", "2x lipat", "4x lipat"], a: "2x lipat", pos: {x: 13, y: 5}, e: [{x:7,y:3,dx:0,dy:3}, {x:10,y:7,dx:0,dy:-3}] },
+      { b: "Saluran menyempit, debit tetap.", q: "Pernyataan yang benar?", o: ["V sama", "V kecil di sempit", "V besar di sempit", "Q berubah"], a: "V besar di sempit", pos: {x: 4, y: 4}, e: [{x:2,y:2,dx:3,dy:3}, {x:12,y:2,dx:-3,dy:3}] },
+      { b: "Diameter diperbesar, apa yang terjadi pada kecepatan?", o: ["Meningkat", "Menurun", "Tetap", "Berhenti"], a: "Menurun", pos: {x: 10, y: 4}, e: [{x:5,y:5,dx:4,dy:0}, {x:7,y:7,dx:0,dy:-4}] },
+      { b: "Debit 24 m³/s, butuh V = 6 m/s.", q: "Luas pipa yang dibutuhkan?", o: ["2 m²", "3 m²", "4 m²", "6 m²"], a: "4 m²", pos: {x: 7, y: 8}, e: [{x:1,y:1,dx:6,dy:0}, {x:13,y:8,dx:-6,dy:0}] }
     ];
 
     const map = [
@@ -228,6 +163,17 @@
         document.getElementById('lvs').innerText = "❤️".repeat(Math.max(0, lives));
     }
 
+    function initEnemies() {
+        const lvl = levelsData[currentLevel];
+        enemies = lvl.e.map(enemy => ({
+            x: enemy.x * TILE_SIZE,
+            y: enemy.y * TILE_SIZE,
+            dx: enemy.dx,
+            dy: enemy.dy,
+            size: 24
+        }));
+    }
+
     function triggerQuiz() {
       if(isQuizActive) return;
       isQuizActive = true; keys = {};
@@ -249,15 +195,16 @@
             isQuizActive = false;
             document.getElementById('quiz-overlay').style.display = 'none';
             if(currentLevel >= levelsData.length) {
-              alert("SELAMAT! ANDA BERHASIL MENYELESAIKAN SEMUA LEVEL!");
-              location.reload();
+              alert("MISI SELESAI!"); location.reload();
             }
-            player.x = TILE_SIZE; player.y = TILE_SIZE; updateUI();
+            player.x = TILE_SIZE; player.y = TILE_SIZE; 
+            initEnemies();
+            updateUI();
           } else {
             lives--; updateUI();
-            if(lives <= 0) { alert("KESEMPATAN HABIS! GAME OVER."); location.reload(); }
-            document.getElementById('feedback').innerText = "JAWABAN SALAH! NYAWA BERKURANG.";
-            setTimeout(() => document.getElementById('feedback').innerText = "", 2000);
+            if(lives <= 0) { alert("GAME OVER!"); location.reload(); }
+            document.getElementById('feedback').innerText = "SALAH! NYAWA -1";
+            setTimeout(() => document.getElementById('feedback').innerText = "", 1500);
           }
         };
         optDiv.appendChild(btn);
@@ -272,16 +219,31 @@
       if(keys['a']) { nx -= 3; player.dir = 'a'; }
       if(keys['d']) { nx += 3; player.dir = 'd'; }
 
-      // Collision Detection
-      const p = 12;
-      const check = (x, y) => {
+      const checkWall = (x, y) => {
+        const p = 12;
         const pts = [{x:x+p, y:y+p}, {x:x+TILE_SIZE-p, y:y+p}, {x:x+p, y:y+TILE_SIZE-p}, {x:x+TILE_SIZE-p, y:y+TILE_SIZE-p}];
         return pts.some(pt => map[Math.floor(pt.y/TILE_SIZE)][Math.floor(pt.x/TILE_SIZE)] === 1);
       };
 
-      if(!check(nx, ny)) { player.x = nx; player.y = ny; }
+      if(!checkWall(nx, ny)) { player.x = nx; player.y = ny; }
 
-      // Goal Check
+      // Logika Musuh
+      enemies.forEach(en => {
+          let nex = en.x + en.dx;
+          let ney = en.y + en.dy;
+          if(checkWall(nex, ney)) {
+              en.dx *= -1; en.dy *= -1;
+          } else {
+              en.x = nex; en.y = ney;
+          }
+          // Tabrakan Musuh
+          if(Math.hypot((player.x+20)-(en.x+20), (player.y+20)-(en.y+20)) < 30) {
+              lives--; player.x = TILE_SIZE; player.y = TILE_SIZE;
+              updateUI();
+              if(lives <= 0) { alert("HANCUR! GAME OVER."); location.reload(); }
+          }
+      });
+
       const goal = levelsData[currentLevel].pos;
       if(Math.hypot(player.x - goal.x*TILE_SIZE, player.y - goal.y*TILE_SIZE) < 25) triggerQuiz();
     }
@@ -292,32 +254,38 @@
         if(cell === 1) { ctx.fillStyle = '#333'; ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE); }
       }));
       
-      // Draw Goal (Portal)
       const g = levelsData[currentLevel].pos;
-      ctx.fillStyle = 'rgba(71, 181, 255, 0.4)';
+      ctx.fillStyle = 'rgba(71, 181, 255, 0.5)';
       ctx.beginPath();
-      ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 18 + Math.sin(Date.now()/200)*5, 0, Math.PI*2);
+      ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 15 + Math.sin(Date.now()/150)*5, 0, Math.PI*2);
       ctx.fill();
 
-      // Draw Tank
+      // Draw Enemies
+      enemies.forEach(en => {
+          ctx.fillStyle = '#ff6b6b';
+          ctx.shadowBlur = 10; ctx.shadowColor = "red";
+          ctx.fillRect(en.x+10, en.y+10, 20, 20);
+          ctx.shadowBlur = 0;
+      });
+
+      // Draw Player
       ctx.save();
       ctx.translate(player.x+20, player.y+20);
       if(player.dir === 's') ctx.rotate(Math.PI);
       if(player.dir === 'a') ctx.rotate(-Math.PI/2);
       if(player.dir === 'd') ctx.rotate(Math.PI/2);
-      ctx.fillStyle = varColor('--accent');
+      ctx.fillStyle = '#00ffab';
       ctx.fillRect(-15, -15, 30, 30);
-      ctx.fillStyle = '#000'; ctx.fillRect(-3, -20, 6, 12);
+      ctx.fillStyle = '#000'; ctx.fillRect(-3, -20, 6, 15);
       ctx.restore();
 
       update();
       requestAnimationFrame(gameLoop);
     }
 
-    function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-
     function startGame() {
       document.getElementById('start-screen').style.display = 'none';
+      initEnemies();
       updateUI();
       gameLoop();
     }
