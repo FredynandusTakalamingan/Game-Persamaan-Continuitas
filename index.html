@@ -23,7 +23,6 @@
       height: 100vh; width: 100vw;
     }
 
-    /* Header UI */
     #header-ui { 
       display: flex; justify-content: space-between; 
       width: 95%; max-width: 700px; padding: 10px; 
@@ -39,7 +38,6 @@
     }
     canvas { background: #111; border: 3px solid #333; width: 100%; height: 100%; display: block; }
 
-    /* Controls */
     .controls { width: 100%; display: flex; justify-content: center; padding: 10px 0; }
     .d-pad { display: grid; grid-template-columns: repeat(3, 55px); gap: 8px; }
     .btn-dir { 
@@ -50,7 +48,6 @@
     }
     .btn-dir:active { background: var(--primary); transform: scale(0.9); }
 
-    /* Quiz Overlay */
     #quiz-overlay { 
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
       background: var(--dark); padding: 20px; border: 3px solid var(--primary); 
@@ -62,8 +59,6 @@
       font-size: 0.85rem; line-height: 1.4; text-align: justify; margin-bottom: 10px;
       color: #ccc; border-left: 3px solid var(--accent);
     }
-    .question-text { font-weight: bold; margin-bottom: 15px; color: #fff; font-size: 0.95rem; }
-    
     .btn-opt { 
       width: 100%; padding: 12px; margin: 5px 0; 
       background: rgba(255,255,255,0.05); border: 1px solid var(--primary); 
@@ -71,23 +66,20 @@
     }
     .btn-opt:active { background: var(--primary); color: #000; }
 
-    /* Start Screen */
     #start-screen { 
       position: fixed; inset: 0; background: #000; 
       display: flex; flex-direction: column; align-items: center; 
       justify-content: center; z-index: 1000; text-align: center; padding: 20px; 
     }
-    .credit-text { color: var(--accent); font-weight: bold; letter-spacing: 2px; margin-bottom: 10px; font-size: 0.9rem; }
+    .credit-text { color: var(--accent); font-weight: bold; letter-spacing: 2px; margin-bottom: 10px; }
   </style>
 </head>
 <body oncontextmenu="return false;">
 
   <div id="start-screen">
     <div class="credit-text">WEB DESIGN BY FREDY TAKALAMINGAN</div>
-    <h1 style="color: var(--primary); margin:0; font-size: 2.5rem;">TANK PHYSICS</h1>
-    <p style="color: #ccc; max-width: 300px; font-size: 0.8rem; margin: 20px 0;">
-      Hati-hati dengan musuh merah yang bergerak liar! Capai portal biru dan jawab kuis fisika dengan benar.
-    </p>
+    <h1 style="color: var(--primary); margin:0;">TANK PHYSICS</h1>
+    <h4 style="color: #666; margin: 10px 0 30px;">KONTINUITAS AIR</h4>
     <button class="btn-opt" onclick="startGame()" style="text-align:center; width: 220px; background: var(--primary); color: #000; font-weight: bold;">MULAI PERMAINAN</button>
   </div>
 
@@ -115,7 +107,7 @@
   <div id="quiz-overlay">
     <h3 id="q-title" style="color: var(--accent); margin:0 0 10px 0; text-align: center;"></h3>
     <div class="bacaan-box" id="q-bacaan"></div>
-    <div class="question-text" id="q-text"></div>
+    <div class="question-text" id="q-text" style="font-weight: bold; margin-bottom: 15px;"></div>
     <div id="q-options"></div>
     <p id="feedback" style="color: var(--danger); font-weight: bold; text-align: center; margin-top: 10px;"></p>
   </div>
@@ -169,25 +161,34 @@
         document.getElementById('lvs').innerText = "❤️".repeat(Math.max(0, lives));
     }
 
-    // FUNGSI MUSUH RANDOM
-    function initEnemies() {
-        enemies = [];
-        // Selalu buat 2 musuh di posisi kosong yang jauh dari start
-        for(let i=0; i<2; i++) {
-            enemies.push({
-                x: (7 + i*3) * TILE_SIZE,
-                y: (5) * TILE_SIZE,
-                dx: (Math.random() > 0.5 ? 2 : -2),
-                dy: (Math.random() > 0.5 ? 2 : -2),
-                lastChange: Date.now()
-            });
-        }
+    function checkWall(x, y) {
+        const p = 8;
+        const pts = [{x:x+p, y:y+p}, {x:x+TILE_SIZE-p, y:y+p}, {x:x+p, y:y+TILE_SIZE-p}, {x:x+TILE_SIZE-p, y:y+TILE_SIZE-p}];
+        if (y < 0 || x < 0 || y >= canvas.height || x >= canvas.width) return true;
+        return pts.some(pt => {
+            let gy = Math.floor(pt.y/TILE_SIZE);
+            let gx = Math.floor(pt.x/TILE_SIZE);
+            return map[gy] && map[gy][gx] === 1;
+        });
     }
 
-    function checkWall(x, y) {
-        const p = 10;
-        const pts = [{x:x+p, y:y+p}, {x:x+TILE_SIZE-p, y:y+p}, {x:x+p, y:y+TILE_SIZE-p}, {x:x+TILE_SIZE-p, y:y+TILE_SIZE-p}];
-        return pts.some(pt => map[Math.floor(pt.y/TILE_SIZE)][Math.floor(pt.x/TILE_SIZE)] === 1);
+    function initEnemies() {
+        enemies = [];
+        for(let i=0; i<2; i++) {
+            // Spawn musuh di posisi acak yang bukan tembok
+            let rx, ry;
+            do {
+                rx = Math.floor(Math.random() * (GRID_W - 2) + 1) * TILE_SIZE;
+                ry = Math.floor(Math.random() * (GRID_H - 2) + 1) * TILE_SIZE;
+            } while (checkWall(rx, ry) || Math.hypot(rx-player.x, ry-player.y) < 100);
+
+            enemies.push({
+                x: rx, y: ry,
+                dx: (Math.random() > 0.5 ? 2.5 : -2.5),
+                dy: (Math.random() > 0.5 ? 2.5 : -2.5),
+                speed: 2 + Math.random() * 1.5
+            });
+        }
     }
 
     function triggerQuiz() {
@@ -211,14 +212,14 @@
             isQuizActive = false;
             document.getElementById('quiz-overlay').style.display = 'none';
             if(currentLevel >= levelsData.length) {
-              alert("CONGRATULATIONS! ANDA MENANG!"); location.reload();
+              alert("SELAMAT! ANDA MENYELESAIKAN SEMUA LEVEL!"); location.reload();
             }
             player.x = TILE_SIZE; player.y = TILE_SIZE; 
             initEnemies(); updateUI();
           } else {
             lives--; updateUI();
-            if(lives <= 0) { alert("GAME OVER!"); location.reload(); }
-            document.getElementById('feedback').innerText = "SALAH! NYAWA BERKURANG.";
+            if(lives <= 0) { alert("KESEMPATAN HABIS!"); location.reload(); }
+            document.getElementById('feedback').innerText = "JAWABAN SALAH!";
             setTimeout(() => document.getElementById('feedback').innerText = "", 1500);
           }
         };
@@ -229,79 +230,90 @@
     function update() {
       if(isQuizActive) return;
       
-      // Update Player
+      // Player Movement
       let nx = player.x, ny = player.y;
-      if(keys['w']) { ny -= 3; player.dir = 'w'; }
-      if(keys['s']) { ny += 3; player.dir = 's'; }
-      if(keys['a']) { nx -= 3; player.dir = 'a'; }
-      if(keys['d']) { nx += 3; player.dir = 'd'; }
+      const ps = 3.5;
+      if(keys['w']) { ny -= ps; player.dir = 'w'; }
+      if(keys['s']) { ny += ps; player.dir = 's'; }
+      if(keys['a']) { nx -= ps; player.dir = 'a'; }
+      if(keys['d']) { nx += ps; player.dir = 'd'; }
       if(!checkWall(nx, ny)) { player.x = nx; player.y = ny; }
 
-      // Update Enemies (RANDOM AI)
+      // Enemy Logic (Full Random Area)
       enemies.forEach(en => {
-          // Ganti arah random setiap 2 detik
-          if(Date.now() - en.lastChange > 2000) {
-              en.dx = (Math.random() - 0.5) * 6;
-              en.dy = (Math.random() - 0.5) * 6;
-              en.lastChange = Date.now();
-          }
-
           let nex = en.x + en.dx;
           let ney = en.y + en.dy;
 
           if(checkWall(nex, ney)) {
-              en.dx *= -1; en.dy *= -1;
-              en.lastChange = Date.now(); // Ganti arah jika tabrak dinding
+              // Jika tabrak tembok, cari arah baru secara acak
+              const angles = [0, Math.PI/2, Math.PI, Math.PI*1.5];
+              let angle = angles[Math.floor(Math.random() * angles.length)];
+              en.dx = Math.cos(angle) * en.speed;
+              en.dy = Math.sin(angle) * en.speed;
           } else {
-              en.x = nex; en.y = ney;
+              en.x = nex;
+              en.y = ney;
           }
 
-          // Tabrakan dengan Player
-          if(Math.hypot((player.x+20)-(en.x+20), (player.y+20)-(en.y+20)) < 28) {
-              lives--; player.x = TILE_SIZE; player.y = TILE_SIZE;
+          // Randomly change direction occasionally (agar tidak hanya bolak balik)
+          if(Math.random() < 0.01) {
+              en.dx = (Math.random() > 0.5 ? en.speed : -en.speed);
+              en.dy = (Math.random() > 0.5 ? en.speed : -en.speed);
+          }
+
+          // Collision with Player
+          if(Math.hypot((player.x+20)-(en.x+20), (player.y+20)-(en.y+20)) < 25) {
+              lives--; 
+              player.x = TILE_SIZE; player.y = TILE_SIZE;
               updateUI();
-              if(lives <= 0) { alert("TANK HANCUR! GAME OVER."); location.reload(); }
+              if(lives <= 0) { alert("TANK HANCUR!"); location.reload(); }
           }
       });
 
       const goal = levelsData[currentLevel].pos;
-      if(Math.hypot(player.x - goal.x*TILE_SIZE, player.y - goal.y*TILE_SIZE) < 25) triggerQuiz();
+      if(Math.hypot(player.x - goal.x*TILE_SIZE, player.y - goal.y*TILE_SIZE) < 30) triggerQuiz();
     }
 
     function gameLoop() {
       ctx.clearRect(0,0, canvas.width, canvas.height);
       
-      // Draw Map
+      // Draw Walls
       map.forEach((row, r) => row.forEach((cell, c) => {
-        if(cell === 1) { ctx.fillStyle = '#333'; ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE); }
+        if(cell === 1) { 
+            ctx.fillStyle = '#1A374D'; 
+            ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.strokeStyle = '#47B5FF';
+            ctx.strokeRect(c*TILE_SIZE+2, r*TILE_SIZE+2, TILE_SIZE-4, TILE_SIZE-4);
+        }
       }));
       
-      // Draw Portal
+      // Draw Goal (Portal)
       const g = levelsData[currentLevel].pos;
-      ctx.fillStyle = 'rgba(71, 181, 255, 0.6)';
+      ctx.fillStyle = 'rgba(71, 181, 255, 0.5)';
       ctx.beginPath();
-      ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 15 + Math.sin(Date.now()/100)*5, 0, Math.PI*2);
+      ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 18 + Math.sin(Date.now()/100)*4, 0, Math.PI*2);
       ctx.fill();
 
-      // Draw Enemies (Red)
+      // Draw Enemies (Red Drones)
       enemies.forEach(en => {
-          ctx.fillStyle = '#ff6b6b';
+          ctx.fillStyle = '#FF6B6B';
+          ctx.shadowBlur = 15; ctx.shadowColor = "red";
           ctx.beginPath();
           ctx.arc(en.x+20, en.y+20, 12, 0, Math.PI*2);
           ctx.fill();
-          // Glow effect
-          ctx.strokeStyle = "rgba(255, 107, 107, 0.5)";
-          ctx.lineWidth = 4;
-          ctx.stroke();
+          ctx.shadowBlur = 0;
+          // Inner detail
+          ctx.fillStyle = "white";
+          ctx.fillRect(en.x+18, en.y+18, 4, 4);
       });
 
-      // Draw Player (Tank Green)
+      // Draw Player (Green Tank)
       ctx.save();
       ctx.translate(player.x+20, player.y+20);
       if(player.dir === 's') ctx.rotate(Math.PI);
       if(player.dir === 'a') ctx.rotate(-Math.PI/2);
       if(player.dir === 'd') ctx.rotate(Math.PI/2);
-      ctx.fillStyle = '#00ffab';
+      ctx.fillStyle = '#00FFAB';
       ctx.fillRect(-15, -15, 30, 30);
       ctx.fillStyle = '#000'; ctx.fillRect(-3, -20, 6, 15);
       ctx.restore();
