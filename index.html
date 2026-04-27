@@ -71,20 +71,20 @@
       display: flex; flex-direction: column; align-items: center; 
       justify-content: center; z-index: 1000; text-align: center; padding: 20px; 
     }
-    .credit-text { color: var(--accent); font-weight: bold; letter-spacing: 2px; margin-bottom: 10px; }
+    .credit { color: var(--accent); font-weight: bold; margin-bottom: 10px; font-size: 0.8rem; }
   </style>
 </head>
 <body oncontextmenu="return false;">
 
   <div id="start-screen">
-    <div class="credit-text">WEB DESIGN BY FREDY TAKALAMINGAN</div>
-    <h1 style="color: var(--primary); margin:0;">TANK PHYSICS</h1>
-    <h4 style="color: #666; margin: 10px 0 30px;">KONTINUITAS AIR</h4>
-    <button class="btn-opt" onclick="startGame()" style="text-align:center; width: 220px; background: var(--primary); color: #000; font-weight: bold;">MULAI PERMAINAN</button>
+    <div class="credit">WEB DESIGN BY FREDY TAKALAMINGAN</div>
+    <h1 style="color: var(--primary); margin:0; letter-spacing: 3px;">TANK PHYSICS</h1>
+    <p style="color: #666; margin-bottom: 30px;">Prinsip Kontinuitas & Kecepatan Aliran</p>
+    <button class="btn-opt" onclick="startGame()" style="text-align:center; width: 220px; background: var(--primary); color: #000; font-weight: bold;">MULAI MISI</button>
   </div>
 
   <div id="header-ui">
-    <div>LVL: <span id="lvl" class="stat-val">1/10</span></div>
+    <div>LEVEL: <span id="lvl" class="stat-val">1/10</span></div>
     <div>LIFE: <span id="lvs" class="stat-val">❤️❤️❤️</span></div>
     <div>SCORE: <span id="scr" class="stat-val">0</span></div>
   </div>
@@ -107,7 +107,7 @@
   <div id="quiz-overlay">
     <h3 id="q-title" style="color: var(--accent); margin:0 0 10px 0; text-align: center;"></h3>
     <div class="bacaan-box" id="q-bacaan"></div>
-    <div class="question-text" id="q-text" style="font-weight: bold; margin-bottom: 15px;"></div>
+    <div id="q-text" style="font-weight: bold; margin-bottom: 15px;"></div>
     <div id="q-options"></div>
     <p id="feedback" style="color: var(--danger); font-weight: bold; text-align: center; margin-top: 10px;"></p>
   </div>
@@ -126,16 +126,16 @@
     let enemies = [];
 
     const levelsData = [
-      { b: "Air masuk = air keluar dalam pipa tertutup.", q: "Konsep ini disebut...", o: ["Newton", "Kontinuitas", "Pascal", "Archimedes"], a: "Kontinuitas", pos: {x: 13, y: 1} },
-      { b: "Pipa besar ke pipa kecil, jumlah air tiap detik tetap.", q: "Besaran yang tetap adalah...", o: ["Tekanan", "Kecepatan", "Debit", "Energi"], a: "Debit", pos: {x: 1, y: 8} },
-      { b: "Air bergerak lebih cepat di pipa yang sempit.", q: "Alasannya adalah...", o: ["Tekanan naik", "Debit tetap", "Volume turun", "Gravitasi"], a: "Debit tetap", pos: {x: 7, y: 5} },
-      { b: "Luas 2 m², kecepatan 3 m/s.", q: "Berapa debitnya?", o: ["5 m³/s", "6 m³/s", "7 m³/s", "8 m³/s"], a: "6 m³/s", pos: {x: 13, y: 8} },
-      { b: "Luas 4 m² ke 2 m². Kecepatan awal 2 m/s.", q: "Kecepatan di pipa kecil?", o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"], a: "4 m/s", pos: {x: 1, y: 1} },
-      { b: "Debit 12 m³/s, luas penampang 3 m².", q: "Berapa kecepatannya?", o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], a: "4 m/s", pos: {x: 7, y: 1} },
-      { b: "Luas pipa berkurang dari 6 m² jadi 3 m².", q: "Kecepatan air menjadi...", o: ["Tetap", "Setengah", "2x lipat", "4x lipat"], a: "2x lipat", pos: {x: 13, y: 5} },
-      { b: "Saluran menyempit, debit tetap.", q: "Pernyataan yang benar?", o: ["V sama", "V kecil di sempit", "V besar di sempit", "Q berubah"], a: "V besar di sempit", pos: {x: 4, y: 4} },
-      { b: "Jika diameter pipa diperbesar, maka kecepatan air...", o: ["Meningkat", "Menurun", "Tetap", "Berhenti"], a: "Menurun", pos: {x: 10, y: 4} },
-      { b: "Debit 24 m³/s, butuh V = 6 m/s.", q: "Luas pipa yang dibutuhkan?", o: ["2 m²", "3 m²", "4 m²", "6 m²"], a: "4 m²", pos: {x: 7, y: 8} }
+      { b: "Air masuk = air keluar dalam pipa.", q: "Konsep ini adalah...", o: ["Newton", "Kontinuitas", "Pascal", "Archimedes"], a: "Kontinuitas", pos: {x: 13, y: 1} },
+      { b: "Debit tetap meskipun diameter pipa berubah.", q: "Apa yang dijaga tetap?", o: ["Tekanan", "Debit", "Kecepatan", "Suhu"], a: "Debit", pos: {x: 1, y: 8} },
+      { b: "Penyempitan pipa membuat air lebih cepat.", q: "Mengapa?", o: ["Debit tetap", "Gaya magnet", "Energi hilang", "Suhu naik"], a: "Debit tetap", pos: {x: 7, y: 5} },
+      { b: "Pipa luas 2m2, kecepatan 3m/s.", q: "Berapa debit airnya?", o: ["5 m3/s", "6 m3/s", "1.5 m3/s", "0.6 m3/s"], a: "6 m3/s", pos: {x: 13, y: 8} },
+      { b: "Luas 4m2 ke 2m2. V1 = 2m/s.", q: "V2 pipa kecil?", o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"], a: "4 m/s", pos: {x: 1, y: 1} },
+      { b: "Debit 12m3/s, luas pipa 3m2.", q: "Kecepatan air?", o: ["4 m/s", "36 m/s", "15 m/s", "9 m/s"], a: "4 m/s", pos: {x: 7, y: 1} },
+      { b: "Luas pipa jadi setengahnya.", q: "Kecepatan air jadi...", o: ["Tetap", "Setengah", "2x lipat", "4x lipat"], a: "2x lipat", pos: {x: 13, y: 5} },
+      { b: "Saluran irigasi menyempit di ujung.", q: "Efeknya adalah...", o: ["Kecepatan naik", "Kecepatan turun", "Debit naik", "Debit turun"], a: "Kecepatan naik", pos: {x: 4, y: 4} },
+      { b: "Debit tetap, luas pipa membesar.", q: "Kecepatan air...", o: ["Naik", "Turun", "Tetap", "Berhenti"], a: "Turun", pos: {x: 10, y: 4} },
+      { b: "V=6m/s, Q=24m3/s.", q: "Luas pipa (A)?", o: ["2 m2", "3 m2", "4 m2", "144 m2"], a: "4 m2", pos: {x: 7, y: 8} }
     ];
 
     const map = [
@@ -151,8 +151,6 @@
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let player = { x: TILE_SIZE, y: TILE_SIZE, dir: 'd' };
-    
     function handleInput(key, state) { keys[key] = state; }
 
     function updateUI() {
@@ -161,13 +159,12 @@
         document.getElementById('lvs').innerText = "❤️".repeat(Math.max(0, lives));
     }
 
-    function checkWall(x, y) {
-        const p = 8;
+    function isWall(x, y) {
+        const p = 8; 
         const pts = [{x:x+p, y:y+p}, {x:x+TILE_SIZE-p, y:y+p}, {x:x+p, y:y+TILE_SIZE-p}, {x:x+TILE_SIZE-p, y:y+TILE_SIZE-p}];
-        if (y < 0 || x < 0 || y >= canvas.height || x >= canvas.width) return true;
         return pts.some(pt => {
-            let gy = Math.floor(pt.y/TILE_SIZE);
-            let gx = Math.floor(pt.x/TILE_SIZE);
+            let gx = Math.floor(pt.x / TILE_SIZE);
+            let gy = Math.floor(pt.y / TILE_SIZE);
             return map[gy] && map[gy][gx] === 1;
         });
     }
@@ -175,19 +172,16 @@
     function initEnemies() {
         enemies = [];
         for(let i=0; i<2; i++) {
-            // Spawn musuh di posisi acak yang bukan tembok
-            let rx, ry;
+            let ex, ey;
             do {
-                rx = Math.floor(Math.random() * (GRID_W - 2) + 1) * TILE_SIZE;
-                ry = Math.floor(Math.random() * (GRID_H - 2) + 1) * TILE_SIZE;
-            } while (checkWall(rx, ry) || Math.hypot(rx-player.x, ry-player.y) < 100);
+                ex = Math.floor(Math.random() * 13 + 1) * TILE_SIZE;
+                ey = Math.floor(Math.random() * 8 + 1) * TILE_SIZE;
+            } while (isWall(ex, ey) || Math.hypot(ex - player.x, ey - player.y) < 120);
 
-            enemies.push({
-                x: rx, y: ry,
-                dx: (Math.random() > 0.5 ? 2.5 : -2.5),
-                dy: (Math.random() > 0.5 ? 2.5 : -2.5),
-                speed: 2 + Math.random() * 1.5
-            });
+            // Berikan kecepatan dan sudut acak murni
+            let angle = Math.random() * Math.PI * 2;
+            let speed = 2 + Math.random() * 2;
+            enemies.push({ x: ex, y: ey, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed });
         }
     }
 
@@ -196,7 +190,7 @@
       isQuizActive = true; keys = {};
       const data = levelsData[currentLevel];
       document.getElementById('quiz-overlay').style.display = 'block';
-      document.getElementById('q-title').innerText = "KUIS LEVEL " + (currentLevel + 1);
+      document.getElementById('q-title').innerText = "LEVEL " + (currentLevel + 1);
       document.getElementById('q-bacaan').innerText = data.b;
       document.getElementById('q-text').innerText = data.q;
       
@@ -212,13 +206,13 @@
             isQuizActive = false;
             document.getElementById('quiz-overlay').style.display = 'none';
             if(currentLevel >= levelsData.length) {
-              alert("SELAMAT! ANDA MENYELESAIKAN SEMUA LEVEL!"); location.reload();
+              alert("MISI SELESAI! SKOR AKHIR: " + score); location.reload();
             }
             player.x = TILE_SIZE; player.y = TILE_SIZE; 
             initEnemies(); updateUI();
           } else {
             lives--; updateUI();
-            if(lives <= 0) { alert("KESEMPATAN HABIS!"); location.reload(); }
+            if(lives <= 0) { alert("GAME OVER!"); location.reload(); }
             document.getElementById('feedback').innerText = "JAWABAN SALAH!";
             setTimeout(() => document.getElementById('feedback').innerText = "", 1500);
           }
@@ -230,43 +224,35 @@
     function update() {
       if(isQuizActive) return;
       
-      // Player Movement
+      // Player
       let nx = player.x, ny = player.y;
-      const ps = 3.5;
-      if(keys['w']) { ny -= ps; player.dir = 'w'; }
-      if(keys['s']) { ny += ps; player.dir = 's'; }
-      if(keys['a']) { nx -= ps; player.dir = 'a'; }
-      if(keys['d']) { nx += ps; player.dir = 'd'; }
-      if(!checkWall(nx, ny)) { player.x = nx; player.y = ny; }
+      if(keys['w']) ny -= 3; if(keys['s']) ny += 3;
+      if(keys['a']) nx -= 3; if(keys['d']) nx += 3;
+      if(!isWall(nx, ny)) { player.x = nx; player.y = ny; }
 
-      // Enemy Logic (Full Random Area)
+      // Enemies - Bergerak Bebas
       enemies.forEach(en => {
-          let nex = en.x + en.dx;
-          let ney = en.y + en.dy;
+          let nex = en.x + en.vx;
+          let ney = en.y + en.vy;
 
-          if(checkWall(nex, ney)) {
-              // Jika tabrak tembok, cari arah baru secara acak
-              const angles = [0, Math.PI/2, Math.PI, Math.PI*1.5];
-              let angle = angles[Math.floor(Math.random() * angles.length)];
-              en.dx = Math.cos(angle) * en.speed;
-              en.dy = Math.sin(angle) * en.speed;
-          } else {
-              en.x = nex;
-              en.y = ney;
+          // Jika menabrak tembok secara horizontal
+          if(isWall(nex, en.y)) {
+              en.vx *= -1;
+              nex = en.x + en.vx;
+          }
+          // Jika menabrak tembok secara vertikal
+          if(isWall(en.x, ney)) {
+              en.vy *= -1;
+              ney = en.y + en.vy;
           }
 
-          // Randomly change direction occasionally (agar tidak hanya bolak balik)
-          if(Math.random() < 0.01) {
-              en.dx = (Math.random() > 0.5 ? en.speed : -en.speed);
-              en.dy = (Math.random() > 0.5 ? en.speed : -en.speed);
-          }
+          en.x = nex; en.y = ney;
 
-          // Collision with Player
-          if(Math.hypot((player.x+20)-(en.x+20), (player.y+20)-(en.y+20)) < 25) {
-              lives--; 
-              player.x = TILE_SIZE; player.y = TILE_SIZE;
+          // Cek Tabrakan dengan Tank
+          if(Math.hypot((player.x+20)-(en.x+20), (player.y+20)-(en.y+20)) < 28) {
+              lives--; player.x = TILE_SIZE; player.y = TILE_SIZE;
               updateUI();
-              if(lives <= 0) { alert("TANK HANCUR!"); location.reload(); }
+              if(lives <= 0) { alert("TANK ANDA HANCUR!"); location.reload(); }
           }
       });
 
@@ -277,46 +263,32 @@
     function gameLoop() {
       ctx.clearRect(0,0, canvas.width, canvas.height);
       
-      // Draw Walls
+      // Peta
       map.forEach((row, r) => row.forEach((cell, c) => {
         if(cell === 1) { 
-            ctx.fillStyle = '#1A374D'; 
-            ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-            ctx.strokeStyle = '#47B5FF';
-            ctx.strokeRect(c*TILE_SIZE+2, r*TILE_SIZE+2, TILE_SIZE-4, TILE_SIZE-4);
+            ctx.fillStyle = '#1A374D'; ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            ctx.strokeStyle = '#47B5FF'; ctx.strokeRect(c*TILE_SIZE+1, r*TILE_SIZE+1, TILE_SIZE-2, TILE_SIZE-2);
         }
       }));
       
-      // Draw Goal (Portal)
+      // Portal
       const g = levelsData[currentLevel].pos;
-      ctx.fillStyle = 'rgba(71, 181, 255, 0.5)';
-      ctx.beginPath();
-      ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 18 + Math.sin(Date.now()/100)*4, 0, Math.PI*2);
-      ctx.fill();
+      ctx.fillStyle = 'rgba(71, 181, 255, 0.4)';
+      ctx.beginPath(); ctx.arc(g.x*TILE_SIZE+20, g.y*TILE_SIZE+20, 18 + Math.sin(Date.now()/100)*4, 0, Math.PI*2); ctx.fill();
 
-      // Draw Enemies (Red Drones)
+      // Musuh (Bola Merah Berpijar)
       enemies.forEach(en => {
           ctx.fillStyle = '#FF6B6B';
-          ctx.shadowBlur = 15; ctx.shadowColor = "red";
-          ctx.beginPath();
-          ctx.arc(en.x+20, en.y+20, 12, 0, Math.PI*2);
-          ctx.fill();
+          ctx.shadowBlur = 10; ctx.shadowColor = "red";
+          ctx.beginPath(); ctx.arc(en.x+20, en.y+20, 12, 0, Math.PI*2); ctx.fill();
           ctx.shadowBlur = 0;
-          // Inner detail
-          ctx.fillStyle = "white";
-          ctx.fillRect(en.x+18, en.y+18, 4, 4);
       });
 
-      // Draw Player (Green Tank)
-      ctx.save();
-      ctx.translate(player.x+20, player.y+20);
-      if(player.dir === 's') ctx.rotate(Math.PI);
-      if(player.dir === 'a') ctx.rotate(-Math.PI/2);
-      if(player.dir === 'd') ctx.rotate(Math.PI/2);
+      // Pemain (Tank)
       ctx.fillStyle = '#00FFAB';
-      ctx.fillRect(-15, -15, 30, 30);
-      ctx.fillStyle = '#000'; ctx.fillRect(-3, -20, 6, 15);
-      ctx.restore();
+      ctx.fillRect(player.x+5, player.y+5, 30, 30);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(player.x+17, player.y-2, 6, 15); // Meriam sederhana
 
       update();
       requestAnimationFrame(gameLoop);
