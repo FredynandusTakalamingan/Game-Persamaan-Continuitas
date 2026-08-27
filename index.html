@@ -151,7 +151,7 @@
       padding: 20px; 
       border: 3px solid var(--primary); 
       width: 90%; 
-      max-width: 400px; 
+      max-width: 440px; 
       display: none; 
       z-index: 100; 
       border-radius: 15px; 
@@ -167,9 +167,10 @@
       border: 1px solid var(--primary); 
       color: var(--text-color); 
       font-family: inherit; 
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       border-radius: 5px;
       cursor: pointer;
+      text-align: left;
     }
 
     .btn-opt:hover {
@@ -199,7 +200,7 @@
         Selesaikan 10 Level Tantangan!<br>
         Makin sempit lorong, makin cepat tank melaju!
     </p>
-    <button class="btn-opt" style="max-width: 200px;" onclick="startGame()">MULAI MISI</button>
+    <button class="btn-opt" style="max-width: 200px; text-align: center;" onclick="startGame()">MULAI MISI</button>
     <div style="margin-top: 20px; font-size: 0.6rem; color: #777;">DESIGN BY FREDY TAKALAMINGAN</div>
   </div>
 
@@ -233,13 +234,12 @@
 
   <div id="quiz-overlay">
     <h3 id="q-lvl" style="color: var(--accent); margin:0 0 10px 0;"></h3>
-    <p id="q-text" style="font-size: 0.9rem; line-height: 1.4;"></p>
+    <p id="q-text" style="font-size: 0.85rem; line-height: 1.4; text-align: justify;"></p>
     <div id="q-options"></div>
     <p id="feedback" style="color: var(--danger); font-weight: bold; margin-top: 10px;"></p>
   </div>
 
   <script>
-    // Mencegah shortcut standar browser
     window.addEventListener('keydown', function(e) {
       if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'a', 's'].includes(e.key.toLowerCase())) {
         e.preventDefault();
@@ -273,12 +273,10 @@
     canvas.width = TILE_SIZE * GRID_W;
     canvas.height = TILE_SIZE * GRID_H;
 
-    // Toggle Tema Light / Dark
     function toggleTheme() {
       document.body.classList.toggle('light-mode');
     }
 
-    // Audio SFX
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function sfx(f, t, d, v=0.1) {
         if(audioCtx.state === 'suspended') return;
@@ -320,15 +318,12 @@
         if(state && !isQuizActive) sfx(200, 'sine', 0.05, 0.02);
     }
 
-    // Bind event kontrol sentuh dan mouse ke D-Pad
     function setupButtonControl(id, key) {
       const btn = document.getElementById(id);
       
-      // Event Sentuh (Touchscreen)
       btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(key, true); });
       btn.addEventListener('touchend', (e) => { e.preventDefault(); handleInput(key, false); });
       
-      // Event Klik / Mouse (Klik & Tahan)
       btn.addEventListener('mousedown', (e) => { e.preventDefault(); handleInput(key, true); });
       btn.addEventListener('mouseup', (e) => { e.preventDefault(); handleInput(key, false); });
       btn.addEventListener('mouseleave', (e) => { e.preventDefault(); handleInput(key, false); });
@@ -340,16 +335,66 @@
     setupButtonControl('btn-d', 'd');
 
     const levels = [
-        { q: "(LOTS) Air mengalir stabil di mana volume masuk sama dengan volume keluar tiap detik. Konsep ini disebut...", a: "Persamaan kontinuitas", o: ["Hukum Pascal", "Hukum Archimedes", "Persamaan kontinuitas", "Hukum Newton"], pos: {x:13, y:1} },
-        { q: "(LOTS) Luas penampang pipa 2 m² dan kecepatan aliran 3 m/s. Berapakah debit airnya?", a: "6 m³/s", o: ["5 m³/s", "6 m³/s", "1.5 m³/s", "0.6 m³/s"], pos: {x:1, y:8} },
-        { q: "(LOTS) Jika luas penampang pipa mengecil, maka kecepatan aliran air akan...", a: "Meningkat", o: ["Tetap", "Menurun", "Meningkat", "Nol"], pos: {x:7, y:5} },
-        { q: "(MOTS) Luas pipa 4 m² dan kecepatan 2 m/s. Jika pipa menyempit menjadi 2 m², kecepatan air menjadi...", a: "4 m/s", o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"], pos: {x:13, y:8} },
-        { q: "(MOTS) Petani mengamati air mengalir lebih cepat di saluran irigasi yang menyempit. Hal ini terjadi karena...", a: "Kecepatan meningkat karena luas mengecil", o: ["Tekanan meningkat drastis", "Debit bertambah", "Kecepatan meningkat karena luas mengecil", "Air menjadi lebih ringan"], pos: {x:1, y:1} },
-        { q: "(MOTS) Debit air dalam pipa adalah 12 m³/s. Jika luas penampang pipa 3 m², maka kecepatan air adalah...", a: "4 m/s", o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], pos: {x:7, y:3} },
-        { q: "(MOTS) Jika luas penampang pipa diperbesar 2 kali lipat sedangkan debit tetap, maka kecepatan air akan...", a: "Setengahnya", o: ["Tetap", "2 kali lipat", "Setengahnya", "4 kali lipat"], pos: {x:11, y:5} },
-        { q: "(HOTS) Bagian 1: luas 6 m², kecepatan 2 m/s. Bagian 2: luas 3 m². Berapakah kecepatan di bagian 2?", a: "4 m/s", o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], pos: {x:3, y:7} },
-        { q: "(HOTS) Pipa utama luas 4 m² kecepatan 3 m/s bercabang menjadi dua pipa kecil luas masing-masing 2 m². Total kecepatan gabungan dua pipa kecil adalah...", a: "6 m/s", o: ["3 m/s", "6 m/s", "12 m/s", "24 m/s"], pos: {x:11, y:1} },
-        { q: "(HOTS) 'Jika kecepatan air meningkat, maka debit pasti bertambah.' Pernyataan tersebut adalah...", a: "Salah, karena debit juga dipengaruhi luas penampang", o: ["Selalu benar", "Salah, karena debit juga dipengaruhi luas penampang", "Benar jika tekanan tinggi", "Tidak bisa ditentukan"], pos: {x:7, y:8} }
+        { 
+          q: "(LOTS) Sebuah tim insinyur mengamati aliran air dalam pipa tertutup tanpa kebocoran. Mereka mencatat bahwa volume air yang masuk setiap detiknya selalu sama persis dengan volume air yang keluar dari ujung lainnya. Prinsip dasar fluida yang mendasari peristiwa kekekalan massa air ini disebut...", 
+          a: "Persamaan kontinuitas", 
+          o: ["Hukum Pascal", "Hukum Archimedes", "Persamaan kontinuitas", "Hukum Newton"], 
+          pos: {x:13, y:1} 
+        },
+        { 
+          q: "(LOTS) Petugas PDAM sedang menguji aliran fluida pada saluran uji. Saluran tersebut memiliki luas penampang 2 m² dan fluida bergerak dengan kecepatan konstan 3 m/s. Berapakah volume fluida yang mengalir tiap detiknya (debit air)?", 
+          a: "6 m³/s", 
+          o: ["5 m³/s", "6 m³/s", "1.5 m³/s", "0.6 m³/s"], 
+          pos: {x:1, y:8} 
+        },
+        { 
+          q: "(LOTS) Saat menyiram tanaman dengan selang, Budi menekan ujung selang sehingga celah keluarnya air menjadi lebih sempit. Fenomena fisik yang dapat diamati langsung dari tindakan Budi tersebut adalah kelajuan semprotan air akan...", 
+          a: "Meningkat", 
+          o: ["Tetap", "Menurun", "Meningkat", "Nol"], 
+          pos: {x:7, y:5} 
+        },
+        { 
+          q: "(MOTS) Air dalam pipa hidroponik mengalir dari pipa utama berluas penampang 4 m² dengan kelajuan 2 m/s. Pipa kemudian disambungkan ke saluran yang menyempit hingga luasnya menjadi 2 m². Berapakah kecepatan aliran air di saluran sempit tersebut?", 
+          a: "4 m/s", 
+          o: ["1 m/s", "2 m/s", "4 m/s", "8 m/s"], 
+          pos: {x:13, y:8} 
+        },
+        { 
+          q: "(MOTS) Pak Tono memperhatikan bahwa arus air di bagian parit desa yang menyempit mengalir jauh lebih deras dibanding bagian yang lebar. Mengapa fenomena arus deras pada penyempitan saluran ini terjadi?", 
+          a: "Kecepatan meningkat karena luas mengecil", 
+          o: ["Tekanan meningkat drastis", "Debit bertambah", "Kecepatan meningkat karena luas mengecil", "Air menjadi lebih ringan"], 
+          pos: {x:1, y:1} 
+        },
+        { 
+          q: "(MOTS) Dalam simulasi laboratorium, alat ukur mencatat debit air stabil sebesar 12 m³/s melintasi pipa uji. Jika luas penampang pipa tersebut diukur sebesar 3 m², berapakah laju aliran fluida di dalam pipa tersebut?", 
+          a: "4 m/s", 
+          o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], 
+          pos: {x:7, y:3} 
+        },
+        { 
+          q: "(MOTS) Sebuah saluran pembuangan dirancang melebar 2 kali lipat dari ukuran semula. Jika debit air yang mengalir dari sumber tetap konstan, bagaimana perubahan kecepatan aliran air setelah memasuki saluran yang lebar tersebut?", 
+          a: "Setengahnya", 
+          o: ["Tetap", "2 kali lipat", "Setengahnya", "4 kali lipat"], 
+          pos: {x:11, y:5} 
+        },
+        { 
+          q: "(HOTS) Dalam sistem pendingin mesin, air mengalir dari zona A (luas 6 m²) dengan kelajuan 2 m/s menuju zona B yang luasan penampangnya dipersempit menjadi 3 m². Berapakah kelajuan air saat memasuki zona B?", 
+          a: "4 m/s", 
+          o: ["2 m/s", "3 m/s", "4 m/s", "6 m/s"], 
+          pos: {x:3, y:7} 
+        },
+        { 
+          q: "(HOTS) Sebuah pipa induk berluas 4 m² mengalirkan air berkecepatan 3 m/s. Pipa ini membelah menjadi dua cabang pipa kecil yang identik dengan luas masing-masing 2 m². Berapakah total gabungan kecepatan aliran pada kedua pipa kecil tersebut?", 
+          a: "6 m/s", 
+          o: ["3 m/s", "6 m/s", "12 m/s", "24 m/s"], 
+          pos: {x:11, y:1} 
+        },
+        { 
+          q: "(HOTS) Seorang siswa menyimpulkan: 'Jika air mengalir semakin cepat saat melewati celah sempit, maka debit airnya otomatis bertambah besar.' Menurut konsep hukum kontinuitas fluida ideal, peryataan siswa tersebut adalah...", 
+          a: "Salah, karena debit juga dipengaruhi luas penampang", 
+          o: ["Selalu benar", "Salah, karena debit juga dipengaruhi luas penampang", "Benar jika tekanan tinggi", "Tidak bisa ditentukan"], 
+          pos: {x:7, y:8} 
+        }
     ];
 
     let player = { x: TILE_SIZE, y: TILE_SIZE, dir: 'd' };
@@ -471,7 +516,6 @@
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Mengambil warna dinding dari CSS variable
       const wallColor = getComputedStyle(document.body).getPropertyValue('--wall-color').trim();
       
       map.forEach((row, r) => row.forEach((cell, c) => {
