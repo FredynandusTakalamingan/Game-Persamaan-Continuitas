@@ -5,7 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Tank Physics: Lorong Air - Fredy T.</title>
   <style>
-    :root { --primary: #47b5ff; --dark: #06283d; --accent: #00ffab; --danger: #ff6b6b; }
+    :root { 
+      --bg-color: #000000;
+      --text-color: #ffffff;
+      --panel-bg: rgba(6, 40, 61, 0.9);
+      --canvas-bg: #111111;
+      --wall-color: #333333;
+      --primary: #47b5ff; 
+      --dark: #06283d; 
+      --accent: #00ffab; 
+      --danger: #ff6b6b; 
+    }
+
+    body.light-mode {
+      --bg-color: #f0f4f8;
+      --text-color: #1a1a1a;
+      --panel-bg: rgba(220, 235, 245, 0.95);
+      --canvas-bg: #e2e8f0;
+      --wall-color: #64748b;
+      --primary: #0284c7;
+      --dark: #ffffff;
+      --accent: #059669;
+      --danger: #dc2626;
+    }
     
     * {
       -webkit-touch-callout: none;
@@ -14,86 +36,181 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+      box-sizing: border-box;
     }
 
     body { 
-      margin: 0; background: #000; color: white; 
+      margin: 0; 
+      background: var(--bg-color); 
+      color: var(--text-color); 
       font-family: 'Courier New', monospace; 
       overflow: hidden; 
       touch-action: none;
-      display: flex; flex-direction: column; 
-      align-items: center; justify-content: center; 
-      height: 100vh; width: 100vw;
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      width: 100vw;
+      transition: background 0.3s, color 0.3s;
     }
 
     #header-ui { 
-      display: flex; justify-content: space-between; 
-      width: 95%; max-width: 700px; padding: 10px; 
-      background: rgba(6, 40, 61, 0.9); border: 2px solid var(--primary); 
-      border-radius: 10px; margin-bottom: 5px; box-sizing: border-box;
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      width: 95%; 
+      max-width: 600px; 
+      padding: 10px; 
+      background: var(--panel-bg); 
+      border: 2px solid var(--primary); 
+      border-radius: 10px; 
+      margin-bottom: 5px; 
       font-size: 0.9rem;
     }
+
     .stat-val { color: var(--accent); font-weight: bold; }
 
-    #canvas-container {
-      position: relative; width: 100%; max-width: 600px; 
-      aspect-ratio: 15 / 10; display: flex; justify-content: center;
+    .theme-btn {
+      background: var(--primary);
+      color: var(--bg-color);
+      border: none;
+      padding: 4px 8px;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.8rem;
     }
-    canvas { background: #111; border: 3px solid #333; width: 100%; height: 100%; display: block; }
 
-    #footer-credit { margin-top: 5px; font-size: 0.6rem; color: #555; letter-spacing: 2px; }
+    #canvas-container {
+      position: relative; 
+      width: 100%; 
+      max-width: 600px; 
+      aspect-ratio: 15 / 10; 
+      display: flex; 
+      justify-content: center;
+    }
 
-    .controls { width: 100%; display: flex; justify-content: center; padding: 15px 0; }
-    .d-pad { display: grid; grid-template-columns: repeat(3, 60px); gap: 10px; }
+    canvas { 
+      background: var(--canvas-bg); 
+      border: 3px solid var(--primary); 
+      width: 100%; 
+      height: 100%; 
+      display: block; 
+    }
+
+    #footer-credit { 
+      margin-top: 5px; 
+      font-size: 0.6rem; 
+      color: #777; 
+      letter-spacing: 2px; 
+    }
+
+    .controls { 
+      width: 100%; 
+      display: flex; 
+      justify-content: center; 
+      padding: 10px 0; 
+    }
+
+    .d-pad { 
+      display: grid; 
+      grid-template-columns: repeat(3, 55px); 
+      gap: 8px; 
+    }
     
     .btn-dir { 
-      width: 60px; height: 60px; background: rgba(71, 181, 255, 0.2); 
-      border: 2px solid var(--primary); color: white; 
-      display: flex; align-items: center; justify-content: center; 
-      border-radius: 50%; font-size: 1.5rem;
+      width: 55px; 
+      height: 55px; 
+      background: rgba(71, 181, 255, 0.2); 
+      border: 2px solid var(--primary); 
+      color: var(--text-color); 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      border-radius: 50%; 
+      font-size: 1.5rem;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent; 
     }
-    .btn-dir:active { background: var(--primary); transform: scale(0.9); }
+
+    .btn-dir:active { 
+      background: var(--primary); 
+      color: #fff;
+      transform: scale(0.95); 
+    }
 
     #quiz-overlay { 
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-      background: var(--dark); padding: 20px; border: 3px solid var(--primary); 
-      width: 90%; max-width: 400px; display: none; z-index: 100; border-radius: 15px; 
-      text-align: center; box-shadow: 0 0 30px #000;
+      position: fixed; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      background: var(--dark); 
+      color: var(--text-color);
+      padding: 20px; 
+      border: 3px solid var(--primary); 
+      width: 90%; 
+      max-width: 400px; 
+      display: none; 
+      z-index: 100; 
+      border-radius: 15px; 
+      text-align: center; 
+      box-shadow: 0 0 30px rgba(0,0,0,0.8);
     }
-    #quiz-overlay p, #quiz-overlay h3 { user-select: none; }
 
     .btn-opt { 
-      width: 100%; padding: 12px; margin: 8px 0; 
-      background: transparent; border: 1px solid var(--primary); 
-      color: white; font-family: inherit; font-size: 1rem;
+      width: 100%; 
+      padding: 12px; 
+      margin: 8px 0; 
+      background: rgba(71, 181, 255, 0.1); 
+      border: 1px solid var(--primary); 
+      color: var(--text-color); 
+      font-family: inherit; 
+      font-size: 0.9rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn-opt:hover {
+      background: var(--primary);
+      color: #fff;
     }
 
     #start-screen { 
-      position: fixed; inset: 0; background: #000; 
-      display: flex; flex-direction: column; align-items: center; 
-      justify-content: center; z-index: 1000; text-align: center; padding: 20px; 
+      position: fixed; 
+      inset: 0; 
+      background: var(--bg-color); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      z-index: 1000; 
+      text-align: center; 
+      padding: 20px; 
     }
   </style>
 </head>
 <body oncontextmenu="return false;"> 
   <div id="start-screen">
     <h1 style="color: var(--accent);">TANK PHYSICS</h1>
-    <p style="max-width: 350px; color: #ccc; font-size: 0.8rem;">
+    <p style="max-width: 350px; color: var(--text-color); font-size: 0.8rem; line-height: 1.5;">
         <b>Konsep: Persamaan Kontinuitas</b><br>
         Selesaikan 10 Level Tantangan!<br>
         Makin sempit lorong, makin cepat tank melaju!
     </p>
-    <button class="btn-opt" onclick="startGame()">MULAI MISI</button>
-    <div style="margin-top: 20px; font-size: 0.6rem; color: #444;">DESIGN BY FREDY TAKALAMINGAN</div>
+    <button class="btn-opt" style="max-width: 200px;" onclick="startGame()">MULAI MISI</button>
+    <div style="margin-top: 20px; font-size: 0.6rem; color: #777;">DESIGN BY FREDY TAKALAMINGAN</div>
   </div>
 
   <div id="header-ui">
     <div class="side-left">LVL: <span id="lvl" class="stat-val">1</span></div>
-    <div class="side-right">
+    <div class="side-center">
         LIFE: <span id="lvs" class="stat-val">❤️❤️❤️</span> | 
         SCORE: <span id="scr" class="stat-val">0</span>
+    </div>
+    <div class="side-right">
+      <button class="theme-btn" onclick="toggleTheme()">MODE</button>
     </div>
   </div>
 
@@ -106,11 +223,11 @@
   <div class="controls">
     <div class="d-pad">
       <div></div>
-      <div class="btn-dir" ontouchstart="handleInput('w', true); return false;" ontouchend="handleInput('w', false); return false;">▲</div>
+      <div class="btn-dir" id="btn-w">▲</div>
       <div></div>
-      <div class="btn-dir" ontouchstart="handleInput('a', true); return false;" ontouchend="handleInput('a', false); return false;">◀</div>
-      <div class="btn-dir" ontouchstart="handleInput('s', true); return false;" ontouchend="handleInput('s', false); return false;">▼</div>
-      <div class="btn-dir" ontouchstart="handleInput('d', true); return false;" ontouchend="handleInput('d', false); return false;">▶</div>
+      <div class="btn-dir" id="btn-a">◀</div>
+      <div class="btn-dir" id="btn-s">▼</div>
+      <div class="btn-dir" id="btn-d">▶</div>
     </div>
   </div>
 
@@ -122,11 +239,30 @@
   </div>
 
   <script>
+    // Mencegah shortcut standar browser
     window.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v' || e.key === 'a' || e.key === 's')) {
+      if ((e.ctrlKey || e.metaKey) && ['c', 'v', 'a', 's'].includes(e.key.toLowerCase())) {
         e.preventDefault();
       }
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
+        e.preventDefault();
+        mapKeyCode(e.code, true);
+      }
     });
+
+    window.addEventListener('keyup', function(e) {
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
+        e.preventDefault();
+        mapKeyCode(e.code, false);
+      }
+    });
+
+    function mapKeyCode(code, state) {
+      if (code === 'KeyW' || code === 'ArrowUp') handleInput('w', state);
+      if (code === 'KeyS' || code === 'ArrowDown') handleInput('s', state);
+      if (code === 'KeyA' || code === 'ArrowLeft') handleInput('a', state);
+      if (code === 'KeyD' || code === 'ArrowRight') handleInput('d', state);
+    }
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -137,15 +273,27 @@
     canvas.width = TILE_SIZE * GRID_W;
     canvas.height = TILE_SIZE * GRID_H;
 
+    // Toggle Tema Light / Dark
+    function toggleTheme() {
+      document.body.classList.toggle('light-mode');
+    }
+
+    // Audio SFX
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function sfx(f, t, d, v=0.1) {
         if(audioCtx.state === 'suspended') return;
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        o.type = t; o.frequency.value = f;
-        g.gain.setValueAtTime(v, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + d);
+        try {
+          const o = audioCtx.createOscillator(); 
+          const g = audioCtx.createGain();
+          o.type = t; 
+          o.frequency.value = f;
+          g.gain.setValueAtTime(v, audioCtx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+          o.connect(g); 
+          g.connect(audioCtx.destination);
+          o.start(); 
+          o.stop(audioCtx.currentTime + d);
+        } catch(e) {}
     }
 
     const map = [
@@ -161,13 +309,35 @@
       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let currentLevel = 0; let score = 0; let lives = 3;
-    let isQuizActive = false; let keys = {};
+    let currentLevel = 0; 
+    let score = 0; 
+    let lives = 3;
+    let isQuizActive = false; 
+    let keys = { w: false, a: false, s: false, d: false };
 
     function handleInput(key, state) { 
         keys[key] = state; 
-        if(state) sfx(200, 'sine', 0.05, 0.02);
+        if(state && !isQuizActive) sfx(200, 'sine', 0.05, 0.02);
     }
+
+    // Bind event kontrol sentuh dan mouse ke D-Pad
+    function setupButtonControl(id, key) {
+      const btn = document.getElementById(id);
+      
+      // Event Sentuh (Touchscreen)
+      btn.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(key, true); });
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); handleInput(key, false); });
+      
+      // Event Klik / Mouse (Klik & Tahan)
+      btn.addEventListener('mousedown', (e) => { e.preventDefault(); handleInput(key, true); });
+      btn.addEventListener('mouseup', (e) => { e.preventDefault(); handleInput(key, false); });
+      btn.addEventListener('mouseleave', (e) => { e.preventDefault(); handleInput(key, false); });
+    }
+
+    setupButtonControl('btn-w', 'w');
+    setupButtonControl('btn-a', 'a');
+    setupButtonControl('btn-s', 's');
+    setupButtonControl('btn-d', 'd');
 
     const levels = [
         { q: "(LOTS) Air mengalir stabil di mana volume masuk sama dengan volume keluar tiap detik. Konsep ini disebut...", a: "Persamaan kontinuitas", o: ["Hukum Pascal", "Hukum Archimedes", "Persamaan kontinuitas", "Hukum Newton"], pos: {x:13, y:1} },
@@ -198,7 +368,7 @@
     function triggerQuiz() {
       if(isQuizActive) return;
       isQuizActive = true;
-      keys = {}; 
+      keys = { w: false, a: false, s: false, d: false }; 
       sfx(600, 'square', 0.2);
       const data = levels[currentLevel];
       document.getElementById('quiz-overlay').style.display = 'block';
@@ -208,16 +378,30 @@
       optDiv.innerHTML = "";
       data.o.forEach(opt => {
         const btn = document.createElement('button');
-        btn.className = "btn-opt"; btn.innerText = opt;
+        btn.className = "btn-opt"; 
+        btn.innerText = opt;
         btn.onclick = () => {
             if(opt === data.a) {
-                sfx(800, 'sine', 0.4); score += 100; currentLevel++;
-                isQuizActive = false; document.getElementById('quiz-overlay').style.display = 'none';
-                if(currentLevel >= levels.length) { alert("MISI BERHASIL! SEMUA LEVEL DISELESAIKAN!"); location.reload(); }
-                player.x = TILE_SIZE; player.y = TILE_SIZE; updateUI();
+                sfx(800, 'sine', 0.4); 
+                score += 100; 
+                currentLevel++;
+                isQuizActive = false; 
+                document.getElementById('quiz-overlay').style.display = 'none';
+                if(currentLevel >= levels.length) { 
+                  alert("MISI BERHASIL! SEMUA LEVEL DISELESAIKAN!"); 
+                  location.reload(); 
+                }
+                player.x = TILE_SIZE; 
+                player.y = TILE_SIZE; 
+                updateUI();
             } else {
-                lives--; sfx(150, 'sawtooth', 0.5, 0.2); updateUI();
-                if(lives <= 0) { alert("GAME OVER!"); location.reload(); }
+                lives--; 
+                sfx(150, 'sawtooth', 0.5, 0.2); 
+                updateUI();
+                if(lives <= 0) { 
+                  alert("GAME OVER!"); 
+                  location.reload(); 
+                }
                 document.getElementById('feedback').innerText = "SALAH! NYAWA -1";
                 setTimeout(() => document.getElementById('feedback').innerText = "", 1000);
             }
@@ -246,16 +430,24 @@
 
       enemies.forEach(e => {
         let ex = e.x, ey = e.y;
-        if(e.dir === 'w') ey -= e.speed; if(e.dir === 's') ey += e.speed;
-        if(e.dir === 'a') ex -= e.speed; if(e.dir === 'd') ex += e.speed;
+        if(e.dir === 'w') ey -= e.speed; 
+        if(e.dir === 's') ey += e.speed;
+        if(e.dir === 'a') ex -= e.speed; 
+        if(e.dir === 'd') ex += e.speed;
+        
         if(isColliding(ex, ey)) e.dir = ['w','s','a','d'][Math.floor(Math.random()*4)];
         else { e.x = ex; e.y = ey; }
         
         if(Math.hypot(player.x - e.x, player.y - e.y) < 25) { 
-            lives--; sfx(100, 'sawtooth', 0.5); 
-            player.x = TILE_SIZE; player.y = TILE_SIZE; 
+            lives--; 
+            sfx(100, 'sawtooth', 0.5); 
+            player.x = TILE_SIZE; 
+            player.y = TILE_SIZE; 
             updateUI(); 
-            if(lives<=0) { alert("MELEDAK!"); location.reload(); }
+            if(lives <= 0) { 
+              alert("MELEDAK!"); 
+              location.reload(); 
+            }
         }
       });
 
@@ -264,19 +456,29 @@
     }
 
     function drawTank(x, y, dir, color) {
-        ctx.save(); ctx.translate(x+20, y+20);
+        ctx.save(); 
+        ctx.translate(x+20, y+20);
         if(dir === 's') ctx.rotate(Math.PI);
         if(dir === 'a') ctx.rotate(-Math.PI/2);
         if(dir === 'd') ctx.rotate(Math.PI/2);
-        ctx.fillStyle = color; ctx.fillRect(-15, -15, 30, 30);
-        ctx.fillStyle = '#000'; ctx.fillRect(-3, -20, 6, 12);
+        ctx.fillStyle = color; 
+        ctx.fillRect(-15, -15, 30, 30);
+        ctx.fillStyle = '#000'; 
+        ctx.fillRect(-3, -20, 6, 12);
         ctx.restore();
     }
 
     function gameLoop() {
-      ctx.clearRect(0,0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Mengambil warna dinding dari CSS variable
+      const wallColor = getComputedStyle(document.body).getPropertyValue('--wall-color').trim();
+      
       map.forEach((row, r) => row.forEach((cell, c) => {
-        if(cell === 1) { ctx.fillStyle = '#333'; ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE); }
+        if(cell === 1) { 
+          ctx.fillStyle = wallColor; 
+          ctx.fillRect(c*TILE_SIZE, r*TILE_SIZE, TILE_SIZE, TILE_SIZE); 
+        }
       }));
       
       const g = levels[currentLevel].pos;
